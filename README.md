@@ -57,6 +57,27 @@
 
 ---
 
+## ⚙️ Environment
+
+| Category | Environment |
+|---|---|
+| 💻 **Main Processor** | ![Jetson Orin Nano](https://img.shields.io/badge/NVIDIA-Jetson%20Orin%20Nano-76B900?style=for-the-badge&logo=nvidia&logoColor=white) |
+| 🔧 **Sub Controller** | ![Arduino](https://img.shields.io/badge/Arduino-Controller-00878F?style=for-the-badge&logo=arduino&logoColor=white) |
+| 🐧 **OS** | ![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04.3-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) |
+| 📦 **Container** | ![Docker](https://img.shields.io/badge/Docker-29.7.2-2496ED?style=for-the-badge&logo=docker&logoColor=white) |
+| 💻 **Programming Language** | ![Python](https://img.shields.io/badge/Python-3.10.12-3776AB?style=for-the-badge&logo=python&logoColor=white) |
+| 🤖 **Robot Platform** | ![RoArm M2-S](https://img.shields.io/badge/RoArm-M2--S-4A90E2?style=for-the-badge) ![Dual Robot Arm](https://img.shields.io/badge/Dual-Robot%20Arm-6C63FF?style=for-the-badge) |
+| 🔌 **Communication** | ![USB Serial](https://img.shields.io/badge/USB-Serial%20Communication-555555?style=for-the-badge&logo=usb&logoColor=white) |
+| 📷 **Camera** | ![ELP Camera](https://img.shields.io/badge/ELP-Wide%20Angle%20Camera-2E8B57?style=for-the-badge) |
+| 📐 **Vision Calibration** | ![ArUco](https://img.shields.io/badge/ArUco-Marker-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white) |
+| 🧠 **AI Framework** | ![PyTorch](https://img.shields.io/badge/PyTorch-2.10.0-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white) ![Ultralytics](https://img.shields.io/badge/Ultralytics-8.4.45-111F68?style=for-the-badge) |
+| 👕 **Garment Perception** | ![YOLO26](https://img.shields.io/badge/YOLO26-Segmentation-00A98F?style=for-the-badge) ![Pose Estimation](https://img.shields.io/badge/YOLO26-Pose%20Estimation-7B61FF?style=for-the-badge) |
+| ⚡ **Inference Engine** | ![TensorRT](https://img.shields.io/badge/TensorRT-10.7.0-76B900?style=for-the-badge&logo=nvidia&logoColor=white) |
+| 🎮 **GPU Runtime** | ![CUDA](https://img.shields.io/badge/CUDA-12.6%20(PyTorch)-76B900?style=for-the-badge&logo=nvidia&logoColor=white) |
+| 📏 **Depth Estimation** | ![UniDepth](https://img.shields.io/badge/UniDepth-V2-1E88E5?style=for-the-badge) |
+| 📊 **Learning / Prediction** | ![XGBoost](https://img.shields.io/badge/XGBoost-3.2.0-EB5B2A?style=for-the-badge) |
+| 🛠️ **Libraries & Tools** | ![OpenCV](https://img.shields.io/badge/OpenCV-4.11.0-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white) ![NumPy](https://img.shields.io/badge/NumPy-1.26.4-013243?style=for-the-badge&logo=numpy&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white) |
+
 ## ▶️ How to Run
 
 
