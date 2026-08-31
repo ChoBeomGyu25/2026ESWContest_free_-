@@ -32,6 +32,7 @@
 ---
 
 ## 🤖 System Overview
+<img width="1086" height="603" alt="스크린샷 2026-08-31 120610" src="https://github.com/user-attachments/assets/0d9b9705-7e4e-422b-a4ec-e412d4897461" />
 
 
 
