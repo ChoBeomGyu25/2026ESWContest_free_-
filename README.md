@@ -33,6 +33,8 @@
 
 ## 🤖 System Overview
 <img width="1080" alt="스크린샷 2026-08-31 120610" src="https://github.com/user-attachments/assets/0d9b9705-7e4e-422b-a4ec-e412d4897461" />
+<img width="1080" alt="스크린샷 2026-08-31 145607" src="https://github.com/user-attachments/assets/07279e27-13f9-4464-943a-0d79fe5baa2a" />
+
 
 본 시스템은 카메라 기반 비전 AI와 두 대의 RoArm M2-S를 활용하여, 바구니에 무작위로 놓인 의류를 인식하고 펼침·정렬·보정·접기까지의 전 과정을 자동으로 수행합니다.
 
