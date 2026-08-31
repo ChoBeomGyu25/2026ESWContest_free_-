@@ -106,7 +106,7 @@
 | 📊 **Learning / Prediction** | ![XGBoost](https://img.shields.io/badge/XGBoost-3.2.0-EB5B2A?style=for-the-badge) |
 | 🛠️ **Libraries & Tools** | ![OpenCV](https://img.shields.io/badge/OpenCV-4.11.0-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white) ![NumPy](https://img.shields.io/badge/NumPy-1.26.4-013243?style=for-the-badge&logo=numpy&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white) |
 
-🎯Expected Effects
+## 🎯Expected Effects & Development
 
 
 
