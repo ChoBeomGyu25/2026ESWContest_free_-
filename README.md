@@ -70,6 +70,10 @@
 ---
 
 ## 👕 Clothing Manipulation Process
+<img width="1080" alt="스크린샷 2026-08-31 161525" src="https://github.com/user-attachments/assets/fa574788-51f4-4812-9a8a-ff868efd6f5f" />
+<img width="1080" alt="스크린샷 2026-08-31 161535" src="https://github.com/user-attachments/assets/ba93dce3-5026-4895-babb-6c1bafe1a514" />
+<img width="1080" alt="스크린샷 2026-08-31 161541" src="https://github.com/user-attachments/assets/0ac862e2-8d5c-4183-ad93-43c89c716344" />
+<img width="1080" alt="스크린샷 2026-08-31 161547" src="https://github.com/user-attachments/assets/1976f757-d705-469d-acb4-bd26a6db8fc7" />
 
 
 
