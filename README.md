@@ -51,7 +51,7 @@
 
 ## ⚙️ Hardware
 <img width="1080" alt="스크린샷 2026-08-31 145738" src="https://github.com/user-attachments/assets/7cec9cb2-e7f6-46d7-a2e9-a0eda6d81ed2" />
-<img width="1080" alt="스크린샷 2026-08-31 145753" src="https://github.com/user-attachments/assets/8b196932-feca-442a-aa73-7a94ab580ad2" />
+<img width="686" height="386" alt="Hardware 구성 및 기능" src="https://github.com/user-attachments/assets/156bbb4a-37d6-4239-809e-7aa6ed1985d5" />
 <img width="1080" alt="스크린샷 2026-08-31 145722" src="https://github.com/user-attachments/assets/61f56ebb-16c4-437d-9a95-5c233de636ad" />
 
 
