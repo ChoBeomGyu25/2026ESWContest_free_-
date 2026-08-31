@@ -107,6 +107,7 @@
 | 🛠️ **Libraries & Tools** | ![OpenCV](https://img.shields.io/badge/OpenCV-4.11.0-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white) ![NumPy](https://img.shields.io/badge/NumPy-1.26.4-013243?style=for-the-badge&logo=numpy&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white) |
 
 ## 🎯Expected Effects & Development
+<img width="1866" height="1047" alt="스크린샷 2026-08-31 163309" src="https://github.com/user-attachments/assets/8eb4700f-1c48-4e6d-9677-1277493fc8dc" />
 
 
 
