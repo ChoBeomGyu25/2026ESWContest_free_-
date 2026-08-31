@@ -106,7 +106,7 @@
 | 📊 **Learning / Prediction** | ![XGBoost](https://img.shields.io/badge/XGBoost-3.2.0-EB5B2A?style=for-the-badge) |
 | 🛠️ **Libraries & Tools** | ![OpenCV](https://img.shields.io/badge/OpenCV-4.11.0-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white) ![NumPy](https://img.shields.io/badge/NumPy-1.26.4-013243?style=for-the-badge&logo=numpy&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white) |
 
-## 🎯Expected Effects & Development
+## 📈Expected Effects & Development
 <img width="1866" height="1047" alt="스크린샷 2026-08-31 163309" src="https://github.com/user-attachments/assets/8eb4700f-1c48-4e6d-9677-1277493fc8dc" />
 
 본 시스템은 세탁 이후 사람이 직접 수행해야 했던 **의류 펼침·정렬·주름 및 접힘 보정·접기 과정을 자동화**함으로써 반복적인 가사 노동에 소요되는 시간과 신체적 부담을 줄이는 것을 목표로 합니다. 특히 일반적인 의류 정리에 평균 10~30분 정도가 소요되는 점을 고려할 때, 사용자의 개입을 최소화하여 의류 정리 과정을 자동으로 수행할 수 있다면 일상생활에서 실질적인 시간 절감 효과를 기대할 수 있습니다. 또한 자체 진행한 설문조사에서는 총 145명의 응답자 중 **111명, 약 76.6%가 '자동으로 옷을 개어주는 로봇'의 출시 시 구매 의향에 긍정적인 응답**을 보여, 자동 의류 정리에 대한 실제 사용자 수요와 활용 가능성도 확인하였습니다. 향후 세탁기와 건조기뿐만 아니라 의류 보관 시스템까지 연계한다면 **세탁 → 건조 → 정리 → 보관으로 이어지는 통합 스마트 홈 의류 관리 시스템**으로 발전할 수 있습니다.
