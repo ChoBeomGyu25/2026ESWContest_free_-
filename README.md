@@ -59,10 +59,10 @@
 ---
 
 ## 🧠 Software / AI
-<img width="687" height="386" alt="상의 주요 함수별 기능" src="https://github.com/user-attachments/assets/19c07bf8-7822-41cc-9dd1-3c4e1b438ee9" />
-<img width="683" height="385" alt="하의 주요 함수별 기능" src="https://github.com/user-attachments/assets/08c7a5fe-d60a-4c8f-90a5-914da7dde6bc" />
-<img width="686" height="385" alt="Jerber" src="https://github.com/user-attachments/assets/79be02ae-2a05-4532-8dc1-dceecf5347e2" />
-<img width="685" height="383" alt="Application" src="https://github.com/user-attachments/assets/0f889cd8-b204-419d-b98e-84a0a1747b08" />
+<img width="1080" alt="상의 주요 함수별 기능" src="https://github.com/user-attachments/assets/19c07bf8-7822-41cc-9dd1-3c4e1b438ee9" />
+<img width="1080" height="385" alt="하의 주요 함수별 기능" src="https://github.com/user-attachments/assets/08c7a5fe-d60a-4c8f-90a5-914da7dde6bc" />
+<img width="1080" height="385" alt="Jerber" src="https://github.com/user-attachments/assets/79be02ae-2a05-4532-8dc1-dceecf5347e2" />
+<img width="1080" height="383" alt="Application" src="https://github.com/user-attachments/assets/0f889cd8-b204-419d-b98e-84a0a1747b08" />
 
 
 
