@@ -1,474 +1,648 @@
-# Preprocessing
+# Garment Preprocessing & Manipulation Runtime
 
-이 디렉터리는 자동 의류 정리 로봇 시스템 **「접신」**의 카메라 기반 의류 인식, 상태 분석 및 로봇 조작 전처리 소프트웨어를 관리합니다.
+이 디렉터리는 팀 **옷개스트라**의 자동 의류 정리 로봇 시스템 **「접신」**에서 사용하는
+상의 및 하의의 Vision Perception, Garment State Analysis, Manipulation Planning 및 Robot Runtime을 관리합니다.
 
-카메라로부터 획득한 영상에서 의류 영역과 주요 특징점을 검출하고, 의류의 형상과 현재 상태를 분석하여 Dual RoArm M2-S가 실제 조작에 사용할 수 있는 기하 정보와 동작 계획의 기반 정보를 생성합니다.
-
-현재 GitHub 제출본은 상의와 하의 Pipeline을 각각 독립적인 Runtime 구조로 유지합니다.
-
----
-
-## 주요 역할
-
-Preprocessing 계층의 주요 역할은 다음과 같습니다.
-
-1. 카메라 영상 입력
-2. 의류 Segmentation
-3. 의류 Pose Estimation
-4. Garment Mask 생성 및 분석
-5. 의류 외곽 형상 및 기하 구조 분석
-6. 주요 Keypoint 및 Landmark 검출
-7. 파지점 후보 생성
-8. 의류 정렬 및 변형 상태 분석
-9. 영상 좌표와 Calibration 정보를 이용한 Robot Workspace 좌표 계산
-10. 의류 상태에 따른 Manipulation Planning 지원
-11. 후속 Dual RoArm Manipulation Runtime에 인식 및 기하 정보 전달
-
----
-
-## 디렉터리 구성
+상의와 하의는 의류 구조, 주요 Landmark, 조작 방식 및 현재 개발 단계가 서로 다르기 때문에
+각각 독립된 Runtime 구조를 유지합니다.
 
     SW/Jetson/preprocessing/
-    ├── README.md
     ├── upper/
-    │   ├── README.md
-    │   ├── run_upper.py
-    │   └── ...
-    │
     └── lower/
-        ├── README.md
-        ├── run_lower.py
-        ├── dual/
-        │   ├── step_e49_bottom_perception.py
-        │   ├── step_e62_bottom_perception.py
-        │   ├── step_d25_v2.py
-        │   ├── elp_ov2710_camera_controls.json
-        │   └── undistort/
-        │       ├── bottom_vla-16.py
-        │       ├── main-33.py
-        │       ├── 50-1.py
-        │       ├── 54-3.py
-        │       ├── 55-5.py
-        │       ├── 58-3.py
-        │       ├── 60-13.py
-        │       ├── align-11.py
-        │       ├── camera_undistort.py
-        │       ├── elp_ov2710_1280x720_calibration.npz
-        │       └── elp_ov2710_folding_board_homography_cache.json
-        │
-        └── outputs/
 
-`upper/`와 `lower/`는 실제 로봇에서 검증된 기존 Source Dependency를 보존하기 위해 각각 독립적인 구조를 유지합니다.
-
-단순한 코드 중복 제거를 위해 검증된 파일 구조나 Dynamic Source Loading 구조를 임의로 변경하지 않는 것을 권장합니다.
+현재 Repository에서는 실제 Robot에서 검증된 Source 구조와 Dynamic Dependency를 보존하는 것을 우선하며,
+향후 학습 기반 자율 Policy는 기존 Main Runtime을 최대한 유지한 상태에서 후속 단계로 연결하는 방향으로 개발합니다.
 
 ---
 
-# 1. 공통 Perception 구조
+# 1. 전체 역할
 
-## Segmentation
+`preprocessing/` 계층은 Camera Input으로부터 Robot Manipulation에 필요한 정보를 생성하고,
+실제 Upper / Lower Runtime을 실행하는 역할을 담당합니다.
 
-Segmentation은 영상에서 의류가 차지하는 영역을 Pixel 단위의 Mask로 검출하는 과정입니다.
+주요 기능은 다음과 같습니다.
 
-검출된 Mask는 다음과 같은 정보 계산에 사용됩니다.
-
-- 의류 전체 영역
-- Garment Center
-- 외곽 Contour
-- Bounding Geometry
-- 파지 가능한 내부 영역
-- 의류 정렬 상태
-- Pose 결과와의 기하 관계
-- Fold / Wrinkle 분석을 위한 의류 유효 영역
-
-상의와 하의 Runtime은 공용 Garment Segmentation TensorRT Engine을 사용합니다.
-
-    SW/Jetson/models/segmentation/
-    └── kfashion_yolo26s_seg3_e100_best.engine
-
----
-
-## Pose Estimation
-
-Pose Estimation은 의류의 형태를 구성하는 주요 Keypoint를 검출합니다.
-
-상의와 하의는 서로 다른 의류 구조를 가지기 때문에 각각 별도의 Pose TensorRT Engine을 사용합니다.
-
-상의 Pose Model:
-
-    SW/Jetson/models/pose/upper/
-    └── tshirt_pose_yolo26m_synth_artf_board_v1_best.engine
-
-하의 Pose Model:
-
-    SW/Jetson/models/pose/lower/
-    └── bottom_pose8_beige_finetune_v2_best.engine
-
-Pose 결과는 Segmentation Mask 및 Geometry 분석 결과와 결합되어 실제 Robot Grasp 및 Manipulation Planning에 사용됩니다.
+- ELP OV2710 Camera Input
+- Camera Undistortion
+- Garment Segmentation
+- Upper / Lower Pose Estimation
+- Garment Mask 분석
+- Contour 및 Geometry 분석
+- Keypoint / Landmark 분석
+- Garment Orientation 판단
+- Fold / Wrinkle 분석
+- Grasp Candidate 계산
+- Folding Board Coordinate 변환
+- Manipulation Planning
+- Dual RoArm M2-S Execution
+- Manipulation 후 Re-observation
+- 향후 Learned Action Decision
+- 향후 Folding-ready 종료조건 판단
 
 ---
 
-## Garment Geometry
+# 2. Upper / Lower 현재 개발 상태
 
-Segmentation Mask와 Pose Keypoint를 결합하여 의류의 기하 정보를 분석합니다.
+현재 Upper와 Lower는 서로 다른 개발 단계에 있습니다.
 
-주요 분석 정보는 다음과 같습니다.
+## Upper
 
-- Garment Center
-- Mask Contour
-- 주요 Keypoint 위치
-- 의류의 방향
-- 외곽과 파지점 사이의 거리
-- Garment Principal Axis
-- Robot Grasp Candidate
-- 두 로봇팔의 파지 간격
-- Folding Board 기준 의류 위치
-- 의류 정렬 상태
-- Fold / Wrinkle 및 변형 상태
+현재 GitHub에는 상의의 Main Manipulation Runtime이 포함되어 있습니다.
 
-이 정보는 단순한 영상 인식 결과에 머무르지 않고 실제 Dual RoArm M2-S의 파지, 이동, 펼침 및 정렬 동작으로 연결됩니다.
+현재 Main Runtime은 다음 단계까지 수행합니다.
+
+    Basket Grasp
+        ↓
+    Folding Board Transfer
+        ↓
+    Initial Placement
+        ↓
+    Reposition
+        ↓
+    Segmentation + Upper Pose
+        ↓
+    Final Grasp Selection
+        ↓
+    Dual-Arm Grasp
+        ↓
+    Aerial Lift / Alignment
+        ↓
+    Laydown
+        ↓
+    Standby Return
+
+현재 Upper Main Runtime 이후에는 향후 학습 Model 기반의 후속 Manipulation Stage를 연결할 예정입니다.
 
 ---
 
-# 2. 상의 Preprocessing
+## Lower
 
-`upper/` 디렉터리는 상의 의류의 인식, 파지점 결정 및 Dual-Arm 조작에 필요한 최종 Runtime과 Dependency를 포함합니다.
+현재 GitHub에는 하의 Main Runtime이 포함되어 있습니다.
 
-상의 Pipeline의 주요 처리 과정은 다음과 같습니다.
+Lower Runtime은 현재 완전 자동 Action Selection 방식이 아니라
+**Human-in-the-loop Semi-Automatic Manipulation Runtime**입니다.
 
-1. 카메라에서 새로운 Frame 획득
-2. Segmentation Model을 이용한 Garment Mask 검출
-3. Upper Pose Model을 이용한 주요 Keypoint 추론
-4. Mask와 Pose 결과를 이용한 의류 형상 분석
-5. 의류 중심 및 외곽 구조를 기반으로 파지 후보 계산
-6. Keypoint 기반 최종 파지점 결정
-7. Calibration 정보를 이용하여 영상 좌표를 Robot Workspace 좌표로 변환
-8. Dual RoArm Manipulation 수행
+System이 Garment Perception과 Manipulation Planning을 수행하고,
+사용자가 현재 상태에 적절한 Semantic Action을 선택합니다.
 
-상의는 GitHub Repository 내부 Dependency를 사용하기 위해 다음 Wrapper를 제공합니다.
+현재 이 과정은 향후 VLA 기반 Automatic Action Policy 학습을 위한 Data Collection 단계입니다.
+
+---
+
+# 3. Upper Runtime
+
+Upper Runtime Directory:
+
+    SW/Jetson/preprocessing/upper/
+
+Repository-Relative Launcher:
 
     SW/Jetson/preprocessing/upper/run_upper.py
 
-Repository Root에서 Dependency 경로 확인:
+현재 Upper Runtime은 다음 기능을 포함합니다.
+
+- Basket Garment Grasp
+- Board Transfer
+- Garment Laydown
+- Initial Reposition
+- Garment Segmentation
+- Upper Pose Estimation
+- Keypoint 기반 Final Grasp Point Selection
+- Dual-Arm Grasp
+- Vertical Lift
+- Aerial Alignment
+- Laydown
+- Garment Release
+- Standby Return
+
+Dependency 검사:
 
     python3 SW/Jetson/preprocessing/upper/run_upper.py --paths-only
 
-실제 자동 Sequence 실행:
+실제 Robot Runtime:
 
     python3 SW/Jetson/preprocessing/upper/run_upper.py --physical-auto
 
-`--physical-auto`는 실제 RoArm M2-S를 동작시키므로 Robot 상태와 주변 작업 공간을 확인한 후 실행해야 합니다.
+`--physical-auto`는 실제 Dual RoArm M2-S를 동작시키므로 Hardware 상태와 Workspace Safety를 확인한 뒤 실행해야 합니다.
 
-상의 Runtime의 세부 구조와 실행 방법은 다음 문서를 참고하십시오.
+자세한 내용:
 
     SW/Jetson/preprocessing/upper/README.md
 
 ---
 
-# 3. 하의 Preprocessing
+# 4. Upper 향후 Learned Manipulation
 
-`lower/` 디렉터리는 하의 의류의 Segmentation, Pose, Geometry 분석과 Semantic Action 기반 Manipulation Runtime을 포함합니다.
+현재 Upper Main Runtime은 Laydown까지 수행합니다.
 
-하의 Pipeline은 완전 자동 Autonomous Pipeline이 아니라 **Human-in-the-loop Semi-Automatic Manipulation 구조**로 구성되어 있습니다.
+향후에는 이 Main Runtime 이후 새로운 Camera Observation을 기반으로
+의류 상태를 다시 판단하고 필요한 Manipulation을 선택하는 학습 기반 Module을 연결할 예정입니다.
 
-사용자는 의류 상태에 따라 상위 Semantic Action을 선택하고, 시스템은 해당 Action에 필요한 Perception 및 Planning을 자동으로 수행합니다.
+목표 구조:
 
-기본 흐름:
+    Current Upper Main Runtime
+            ↓
+    Laydown
+            ↓
+    Camera Re-observation
+            ↓
+    Learned Garment-State Model
+            ↓
+    Additional Action Decision
+            ↓
+    Manipulation
+            ↓
+    Re-observation
+            ↓
+    Termination Decision
 
-    사용자 Action 선택
-            ↓
-    Perception / Geometry 분석
-            ↓
-    자동 Manipulation Planning
-            ↓
-    Frozen Plan 생성
-            ↓
-    ENTER 사용자 승인
-            ↓
-    Robot Execution
-            ↓
-    Result Review
+향후 자동 판단 대상으로 고려하는 Action의 예시는 다음과 같습니다.
 
-한 번 생성된 Plan은 Frozen 상태로 유지되며, `ENTER` 입력 시 새롭게 재추론하지 않고 승인된 Plan을 실행합니다.
+- Wrinkle Unfold
+- Fold Correction
+- Position Adjustment
+- Alignment
+- Pull
+- Reposition
+- Rejudge
+- Finish
+
+최종적으로 학습 Model이
+
+    FOLDING_READY = TRUE
+
+를 판단하면 Upper Manipulation Loop를 종료하고 Folding Board 단계로 이동하는 것을 목표로 합니다.
+
+현재 이 후속 Learned Module은 개발 단계이며,
+현재 GitHub에 포함된 Upper Main Runtime과 구분하여 관리합니다.
 
 ---
 
-## 하의 주요 Runtime
+# 5. Lower Runtime
 
-최종 Semantic Action Entry Point:
+Lower Runtime Directory:
 
-    SW/Jetson/preprocessing/lower/dual/undistort/bottom_vla-16.py
+    SW/Jetson/preprocessing/lower/
 
-통합 Base Runtime:
-
-    SW/Jetson/preprocessing/lower/dual/undistort/main-33.py
-
-Repository-Relative Wrapper:
+Repository-Relative Launcher:
 
     SW/Jetson/preprocessing/lower/run_lower.py
 
-하의 주요 Action Source:
+Main Semantic Runtime:
 
-    50-1.py
-    54-3.py
-    55-5.py
-    58-3.py
-    60-13.py
-    align-11.py
+    SW/Jetson/preprocessing/lower/dual/undistort/bottom_vla-16.py
 
-하의 Perception Source:
+Integrated Base Runtime:
+
+    SW/Jetson/preprocessing/lower/dual/undistort/main-33.py
+
+현재 Lower Runtime에서 사용자가 선택할 수 있는 Semantic Action은 다음과 같습니다.
+
+    1 : BASKET_GRASP
+    2 : OUTER_PULL
+    3 : PRESS_SWEEP
+    4 : WAIST_PULL_LAYDOWN
+    5 : ALIGN
+    6 : FINISH
+    7 : REJUDGE
+    8 : POSITION_ADJUST
+
+기본 흐름:
+
+    Camera Observation
+            ↓
+    Segmentation / Bottom Pose
+            ↓
+    Garment State Analysis
+            ↓
+    Human Semantic Action Selection
+            ↓
+    Automatic Manipulation Planning
+            ↓
+    Frozen Plan
+            ↓
+    ENTER Approval
+            ↓
+    Robot Execution
+            ↓
+    Result Evaluation
+            ↓
+    Dataset Save
+
+현재 Lower Runtime을 완전 자율 System으로 표현하지 않습니다.
+
+---
+
+# 6. Lower VLA Data Collection
+
+현재 Human Semantic Action Selection의 목적은
+향후 **VLA(Vision-Language-Action) 기반 Automatic Action Policy**를 학습하기 위한 Data를 수집하는 것입니다.
+
+현재 수집하는 핵심 관계는 다음과 같습니다.
+
+    Garment Observation
+            ↓
+    Garment State
+            ↓
+    Semantic Action
+            ↓
+    Manipulation Result
+            ↓
+    Next Garment State
+
+사용자의 Action 선택은 다양한 Garment State에서
+
+    "현재 상태에서는 어떤 Action이 적절한가?"
+
+라는 학습 Label 역할을 합니다.
+
+향후 충분한 Dataset이 확보되면 현재 사용자가 수행하는 `1 ~ 8` Semantic Action Selection을
+학습된 VLA Model의 Action Output으로 대체하는 것을 목표로 합니다.
+
+---
+
+# 7. Lower 향후 VLA 자동화
+
+현재:
+
+    Perception
+        ↓
+    Human Action Selection
+        ↓
+    Planning
+        ↓
+    Robot Execution
+
+향후:
+
+    Perception
+        ↓
+    VLA State Understanding
+        ↓
+    Semantic Action Prediction
+        ↓
+    Planning
+        ↓
+    Robot Execution
+        ↓
+    Re-observation
+        ↓
+    VLA Re-decision
+
+VLA Model은 어떤 Semantic Action을 수행할지 판단하고,
+실제 Grasp Point, Target, Trajectory 및 Hardware Safety는 기존 검증된 Planner와 Runtime이 담당하는 구조를 유지할 예정입니다.
+
+---
+
+# 8. Lower 종료조건 자동 판단
+
+Lower 역시 Action Selection 자동화만을 최종 목표로 하지 않습니다.
+
+향후 System은 다음 상태를 종합적으로 판단하여 추가 Manipulation이 필요한지 결정하는 것을 목표로 합니다.
+
+- Garment가 충분히 펼쳐졌는가
+- Waistband 방향이 적절한가
+- Crotch 구조가 안정적인가
+- 양쪽 Leg가 적절히 배치되었는가
+- Hem 위치가 적절한가
+- 큰 Fold가 남아 있는가
+- Garment Center가 적절한가
+- Folding Board 기준 Orientation이 적절한가
+- 추가 Position Adjustment가 필요한가
+- 추가 Alignment가 필요한가
+
+최종적으로
+
+    FOLDING_READY = TRUE
+
+가 결정되면 Lower Manipulation Loop를 종료하고 Folding Board 단계로 이동하는 것을 목표로 합니다.
+
+---
+
+# 9. Lower 주요 Source Dependency
+
+현재 Lower Runtime은 다음 주요 Source로 구성됩니다.
+
+    bottom_vla-16.py
+        ↓
+    main-33.py
+        ↓
+    ├── 50-1.py
+    ├── 54-3.py
+    ├── 55-5.py
+    ├── 58-3.py
+    ├── 60-13.py
+    └── align-11.py
+
+Perception Dependency:
 
     step_e49_bottom_perception.py
     step_e62_bottom_perception.py
     step_d25_v2.py
 
----
+Camera Helper:
 
-## 하의 Semantic Action
-
-`bottom_vla-16.py`에서는 다음 Semantic Action을 선택할 수 있습니다.
-
-| Key | Action |
-|---|---|
-| `1` | BASKET_GRASP |
-| `2` | OUTER_PULL |
-| `3` | PRESS_SWEEP |
-| `4` | WAIST_PULL_LAYDOWN |
-| `5` | ALIGN |
-| `6` | FINISH |
-| `7` | REJUDGE |
-| `8` | POSITION_ADJUST |
-| `ENTER` | Frozen Plan 실행 |
-| `A / M` | Mask Accurate / Inaccurate |
-| `G / B / K` | 실행 결과 분류 |
-| `Y / N` | 결과 저장 / 폐기 |
-| `E` | Empty-board Baseline |
-| `L` | Lock |
-| `Q` | 종료 |
+    camera_undistort.py
 
 ---
 
-## 하의 Perception Module
+# 10. Lower D23 Dynamic Alias 구조
 
-### step_e49_bottom_perception.py
+`step_d25_v2.py`는 내부적으로 `step_d23_v2` Module을 참조합니다.
 
-하의의 기본 Perception 및 Geometry 분석을 담당합니다.
+하지만 최종 통합 Runtime에서는 별도의 standalone
 
-주요 기능:
+    step_d23_v2.py
 
-- Garment Segmentation
-- Mask Selection
-- Glare / Specular Suppression
-- Wrinkle Heatmap
-- Local Shadow 분석
-- Bottom Pose 추론
-- TTA / Consensus
-- Temporal Stabilization
-- Mask Topology
-- PCA / Oriented Rectangle
-- Crotch Concavity
-- Waistband Evidence
-- Landmark Reconstruction
+를 사용하지 않습니다.
 
----
+다음 Runtime Source가 D25를 연결하기 전에 현재 Module을 `step_d23_v2` 이름으로 등록합니다.
 
-### step_e62_bottom_perception.py
+    54-3.py
+    55-5.py
+    60-13.py
+    align-11.py
 
-E49 기반의 하의 상태 판단을 확장합니다.
+즉 Lower의 D23 관계는 단순 File Dependency가 아니라
+검증된 **Dynamic Module Alias 구조**입니다.
 
-주요 기능:
-
-- Spread-ready 판단
-- Centered-ready 판단
-- Axis-parallel-ready 판단
-- Termination-ready 판단
-- Edge / Near-edge / Interior Wrinkle 분류
-- 자연적인 Waistband / Crotch Residual 억제
+따라서 `step_d23_v2.py`가 Repository에 별도로 존재하지 않는 것은 누락이 아닙니다.
 
 ---
 
-### step_d25_v2.py
+# 11. Lower Homography
 
-Reference-free 방식의 Bottom Finish Evaluator입니다.
-
-주요 평가 요소:
-
-- Waist 구조
-- Crotch Concavity
-- Two-leg 구조
-- Hem 영역
-- Pose + Geometry Landmark
-- Convexity Defect
-- Contour 변화
-- Macro Fold
-
-Fine Wrinkle이나 의류 고유 Seam 구조가 불필요하게 FINISH 판정을 방해하지 않도록 하면서 실제 조작이 필요한 큰 Fold를 중심으로 평가합니다.
-
----
-
-## step_d23_v2 Compatibility
-
-`step_d25_v2.py`에는 `step_d23_v2` Import가 존재하지만 최종 Integrated Runtime에서는 별도의 `step_d23_v2.py`를 제출하지 않습니다.
-
-다음 Action Module들이 D25를 Load하기 전에 자기 자신을 `step_d23_v2`로 등록합니다.
-
-    sys.modules.setdefault("step_d23_v2", sys.modules[__name__])
-
-해당 구조를 사용하는 Module:
-
-- 54-3.py
-- 55-5.py
-- 60-13.py
-- align-11.py
-
-이 Caller Alias 구조는 최종 하의 Static Dependency Validation에서 확인되었습니다.
-
----
-
-# 4. Camera 및 Calibration 연동
-
-영상에서 얻은 Pixel 좌표를 Folding Board 및 Robot Workspace 좌표로 연결하기 위해 Camera Calibration과 Homography를 사용합니다.
-
-공용 Dependency:
-
-    SW/Jetson/common/camera/camera_undistort.py
-    SW/Jetson/common/camera/elp_ov2710_1280x720_calibration.npz
-
-    SW/Jetson/common/calibration/dual_roarm_folding_board_config.json
-    SW/Jetson/common/calibration/basket_arm2_5point_affine.json
-    SW/Jetson/common/calibration/elp_ov2710_folding_board_homography_cache.json
-
----
-
-## 하의 전용 Camera Geometry
-
-하의 Runtime은 추가적으로 다음 Camera Resource를 로컬 Dependency로 사용합니다.
-
-    SW/Jetson/preprocessing/lower/dual/elp_ov2710_camera_controls.json
-
-    SW/Jetson/preprocessing/lower/dual/undistort/
-    ├── camera_undistort.py
-    ├── elp_ov2710_1280x720_calibration.npz
-    └── elp_ov2710_folding_board_homography_cache.json
-
-하의 Runtime은 Raw Frame과 Corrected Frame Geometry를 구분하여 사용합니다.
-
-따라서 하의 전용:
+Lower Runtime은 다음 Local Homography를 사용합니다.
 
     SW/Jetson/preprocessing/lower/dual/undistort/
     elp_ov2710_folding_board_homography_cache.json
 
-과 공용:
+해당 File은 다음 정보를 포함합니다.
+
+    H
+    raw_H
+    camera_geometry
+    schema_version
+
+Lower에서는 Action에 따라 Corrected Camera Geometry와 RAW Camera Geometry를 모두 사용하므로
+Upper/Common Homography보다 추가 정보가 필요합니다.
+
+---
+
+# 12. Upper/Common Homography와의 차이
+
+다음 Common Homography:
 
     SW/Jetson/common/calibration/
     elp_ov2710_folding_board_homography_cache.json
 
-은 파일명이 같더라도 내용과 역할이 다릅니다.
+와 Lower-specific Homography는 같은 File 이름을 사용하지만 동일한 Artifact가 아닙니다.
 
-**두 Homography 파일은 서로 덮어쓰거나 하나로 통합하면 안 됩니다.**
+Upper/Common:
+
+    H 중심의 검증된 Upper Calibration
+
+Lower-specific:
+
+    H
+    raw_H
+    camera_geometry
+    schema_version
+
+따라서 두 Homography를 서로 덮어쓰거나 하나로 통합하지 않습니다.
 
 ---
 
-# 5. 하의 Runtime 실행
+# 13. Lower AI Model
 
-Repository Root:
+Lower Runtime은 다음 TensorRT Model을 사용합니다.
 
-    cd /workspace/2026ESWContest_free_-
+## Shared Garment Segmentation
+
+    SW/Jetson/models/segmentation/
+    kfashion_yolo26s_seg3_e100_best.engine
+
+## Bottom Pose
+
+    SW/Jetson/models/pose/lower/
+    bottom_pose8_beige_finetune_v2_best.engine
+
+Repository-Relative `run_lower.py`는 해당 Model 경로를 Main Runtime에 명시적으로 전달합니다.
+
+---
+
+# 14. Lower 실행 방법
 
 Dependency 검사:
 
     python3 SW/Jetson/preprocessing/lower/run_lower.py --paths-only
 
-현재 GitHub 로컬 제출본의 Dependency Validation 결과:
+Dry-run:
 
-    PASS=19 FAIL=0 TOTAL=19
+    python3 SW/Jetson/preprocessing/lower/run_lower.py --dry-run
 
-기본 Wrapper 실행:
-
-    python3 SW/Jetson/preprocessing/lower/run_lower.py
-
-실제 Physical Runtime:
+Physical Runtime:
 
     python3 SW/Jetson/preprocessing/lower/run_lower.py --physical
 
-**주의: `--physical`은 실제 Dual RoArm M2-S 동작을 활성화합니다.**
-
-실제 실행 전에는 Robot 전원, Serial Port, Camera, Folding Board Calibration 및 작업 공간의 안전 상태를 반드시 확인해야 합니다.
-
-하의 Runtime의 자세한 Dependency와 실행 방법은 다음 문서를 참고하십시오.
-
-    SW/Jetson/preprocessing/lower/README.md
+`--physical`은 실제 Dual RoArm M2-S Motion을 활성화하므로 Robot 및 Workspace Safety를 확인한 뒤 실행해야 합니다.
 
 ---
 
-# 6. Generated Runtime Artifact
+# 15. Lower GitHub Fresh-Clone 검증
 
-하의 Runtime에서 생성되는 Baseline Image, Dataset, Debug Output 및 기타 Generated Artifact는 다음 위치에 저장합니다.
+Lower Runtime은 GitHub 업로드 후 별도의 Fresh Clone Directory에서 검증했습니다.
 
-    SW/Jetson/preprocessing/lower/outputs/
+검증 결과:
 
-이 Directory는 `.gitignore`를 통해 Git 제출 대상에서 제외합니다.
+    Dependency:
+    PASS=19
+    FAIL=0
 
-Python Cache 역시 다음 규칙으로 제외됩니다.
+    Python Compile:
+    PASS=13
+    FAIL=0
 
-    __pycache__/
-    *.py[cod]
+    Static Dependency:
+    PASS=36
+    FAIL=0
 
----
+또한 Fresh Clone Repository 내부 Source를 사용하여 다음 Runtime Initialization을 확인했습니다.
 
-# 7. 제출본 검증
-
-하의 GitHub 로컬 제출본은 다음 검사를 통과했습니다.
-
-    run_lower.py --paths-only
-    PASS=19 FAIL=0
-
-    Python py_compile
-    PASS=13 FAIL=0
-
-    Authoritative SHA-256
-    PASS=19 FAIL=0
-
-    Static Dependency Validator
-    PASS=37 FAIL=0
-
-이를 통해 하의 제출본의 주요 Source, Model, Calibration 및 Dynamic Dependency 구조가 원본 Runtime과 일치하는지 확인했습니다.
-
----
-
-# 8. Source Integrity 주의사항
-
-일부 Runtime 및 보조 Module은 개발 과정에서 사용된 기존 파일명과 Source Loading 구조를 유지하고 있습니다.
-
-이는 실제 Robot 동작 검증이 완료된 Dependency와 Dynamic Import 구조의 호환성을 보존하기 위한 것입니다.
-
-따라서 다음 작업은 전체 Runtime 재검증 없이 수행하지 않는 것을 권장합니다.
-
-- 검증된 Python 파일명 변경
-- Source Directory 재구성
-- 핵심 Source 자동 Formatting
-- Dynamic Source Loading 구조 변경
-- 단순 중복 제거 목적의 Module 통합
-- Lower 전용 Homography와 Common Homography 통합
-- D25 Import만을 근거로 한 별도 `step_d23_v2.py` 추가
-
-본 GitHub 제출 구조에서는 Source Code 중복 최소화보다 **실제 Robot에서 검증된 Runtime의 재현성과 Dependency 보존을 우선합니다.**
+- Lower Source Loading
+- Dynamic Source Dependency 연결
+- E49 / E62 / D25 연결
+- Lower-specific Homography Loading
+- Camera Open
+- Camera Control 적용
+- Camera Undistortion
+- Segmentation TensorRT Engine Loading
+- Bottom Pose TensorRT Engine Loading
+- TensorRT Execution Context Warm-up
+- Bottom VLA Operator Runtime 진입
 
 ---
 
-# 9. 요약
+# 16. Clean Docker GitHub-only 검증
 
-Preprocessing 계층은 카메라 영상으로부터 다음 정보를 생성합니다.
+Lower Runtime은 기존 개발 Directory가 Runtime을 우연히 보조하는지 확인하기 위해
+별도의 Clean Docker 환경에서도 추가 검증했습니다.
 
-- Garment Segmentation Mask
-- Pose Keypoint
-- Garment Geometry
-- Contour 및 Landmark
-- Grasp Candidate
-- Fold / Wrinkle 상태
-- Robot Manipulation을 위한 좌표 정보
-- 의류 상태 기반 Manipulation Planning 정보
+검증 조건:
 
-상의와 하의는 동일한 Dual RoArm M2-S 및 Folding Board System에서 동작하지만, 각 의류의 형태와 조작 정책이 서로 다르기 때문에 검증된 Runtime 및 Dependency 구조를 각각 유지합니다.
+- 기존 Runtime과 동일한 Docker Image 사용
+- NVIDIA Runtime 사용
+- `/workspace/project_train`을 빈 Read-only Directory로 대체
+- Legacy Project Directory 내부 File 수 = 0
+- `PYTHONPATH`에 기존 Project 경로 없음
+- `/dev/roarm_1` 전달하지 않음
+- `/dev/roarm_2` 전달하지 않음
+- `/dev/ttyACM0` 전달하지 않음
+- `/dev/video0`만 전달
+- GitHub Repository를 Container 내부 `/tmp`에 새로 Clone
 
-상의는 자동 의류 인식 및 Dual-Arm 조작 Runtime을 제공하며, 하의는 사용자의 Semantic Action 선택과 Frozen Plan 승인을 결합한 **Human-in-the-loop Semi-Automatic Manipulation Runtime**을 제공합니다.
+이 환경에서 다음을 확인했습니다.
+
+    GitHub Fresh Clone
+        ↓
+    Dependency Check 19 / 19 PASS
+        ↓
+    Lower Homography Validation PASS
+        ↓
+    Camera Open PASS
+        ↓
+    Camera Control PASS
+        ↓
+    Camera Undistortion PASS
+        ↓
+    Segmentation TensorRT Load PASS
+        ↓
+    Bottom Pose TensorRT Load PASS
+        ↓
+    TensorRT Warm-up PASS
+        ↓
+    Bottom VLA Operator Runtime PASS
+
+실제 Runtime Source, Model 및 Calibration 경로는 모두 Fresh Clone Repository 내부의
+
+    /tmp/jeopsin_github_clean/SW/Jetson/...
+
+경로를 사용했습니다.
+
+이를 통해 기존 `/workspace/project_train` 개발 Directory의 Source, Model 또는 Calibration에 의존하지 않고
+GitHub Repository 내부 Artifact만으로 Lower Runtime을 초기화할 수 있음을 확인했습니다.
+
+Robot Device는 Clean Docker에 전달하지 않았기 때문에
+이 검증은 Physical Robot Motion Test가 아니라 **Repository Runtime Reproducibility 및 Initialization 검증**입니다.
+
+---
+
+# 17. Legacy Absolute Path와 Repository Launcher
+
+일부 기존 Runtime Source에는 개발 당시 사용했던
+
+    /workspace/project_train/...
+
+형태의 Legacy Default 또는 Fallback 경로가 남아 있습니다.
+
+현재 제출 Runtime에서는 검증된 Source 자체를 대규모로 수정하지 않고,
+Repository-Relative Launcher가 필요한 Source, Model 및 Calibration 경로를 명시적으로 전달하는 구조를 사용합니다.
+
+Upper:
+
+    run_upper.py
+
+Lower:
+
+    run_lower.py
+
+이를 통해 기존 Robot Runtime의 검증된 Source 구조를 유지하면서
+GitHub Repository 내부 Artifact를 사용하도록 구성합니다.
+
+---
+
+# 18. Docker 실행 환경
+
+현재 주요 Jetson Runtime은 Docker Container 내부에서 실행 및 검증했습니다.
+
+현재 Runtime 검증 환경:
+
+- NVIDIA Jetson Orin Nano
+- Ubuntu 22.04.3 Host
+- Docker 29.7.2
+- Runtime Image: `roarm_dual_working_20260814:latest`
+- NVIDIA Container Runtime
+- Python 3.10.12
+- TensorRT 10.7.0
+- OpenCV 4.11.0
+- PyTorch 2.10.0
+- CUDA Runtime 12.6 (PyTorch)
+- NumPy 1.26.4
+- Ultralytics 8.4.45
+- XGBoost 3.2.0
+
+현재 Runtime은 ELP OV2710 Camera와 Dual RoArm M2-S를 Hardware Interface로 사용합니다.
+
+---
+
+# 19. Source 구조 유지 원칙
+
+현재 Upper와 Lower Runtime은 실제 Robot에서 검증된 다음 구조를 포함합니다.
+
+- Dynamic Import
+- Same-directory Dependency
+- Source Text Patch
+- Module Alias
+- Runtime Working Directory 의존 관계
+- 검증된 File 이름
+- Calibration Artifact
+- TensorRT Engine
+
+따라서 전체 Runtime 재검증 없이 다음 작업을 수행하지 않는 것을 권장합니다.
+
+- 핵심 Source File 이름 변경
+- Directory 임의 이동
+- Import 자동 정리
+- 자동 Formatter 적용
+- Dynamic Source 구조 제거
+- D23 Alias 구조 변경
+- Upper Source-Text Patch 구조 변경
+- Homography 통합
+- Model 임의 교체
+
+---
+
+# 20. 최종 목표
+
+Upper와 Lower 모두 최종적으로 다음 Closed-loop 구조를 지향합니다.
+
+    Camera Observation
+            ↓
+    Garment Perception
+            ↓
+    Garment State Understanding
+            ↓
+    Learned Action Decision
+            ↓
+    Manipulation Planning
+            ↓
+    Safety / Geometry Validation
+            ↓
+    Dual RoArm Execution
+            ↓
+    Re-observation
+            ↓
+    Additional Action Decision
+            ↓
+    Termination Condition
+            ↓
+    FOLDING_READY
+            ↓
+    Folding Board
+
+현재 Upper는 Main Manipulation Runtime 이후 Learned Garment-State Decision Module을 추가하는 방향으로 개발 중이며,
+현재 Lower는 Human-in-the-loop VLA Data Collection을 통해 향후 Semantic Action Selection을 자동화하는 단계로 발전시키고 있습니다.
+
+최종적으로 사람이 각 조작 단계를 직접 선택하지 않아도
+System이 의류 상태를 반복적으로 관찰하면서 필요한 Manipulation을 스스로 선택하고,
+**Folding Board로 접을 수 있는 상태인지까지 자동으로 판단하는 것**을 목표로 합니다.

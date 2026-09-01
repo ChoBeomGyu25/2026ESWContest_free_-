@@ -732,3 +732,45 @@ GitHub 제출본에서는 코드 중복 최소화보다 **실제 로봇에서 �
 즉, 현재 Human-in-the-loop Runtime은 **최종 자동화 시스템을 구축하기 위한 VLA Data Collection 및 Robot Action 검증 단계**이며, 최종적으로는 사용자의 Semantic Action Key 입력을 제거하여 하의의 상태 판단부터 Action 선택 및 Robot Manipulation까지 연속적으로 수행하는 자동화 Pipeline을 구현하는 것을 목표로 합니다.
 
 다만 실제 Robot Manipulation의 특성상 최종 자동화 단계에서도 Workspace Safety, Robot Reachability 및 Emergency Stop과 같은 Physical Safety Constraint는 독립적으로 유지할 예정입니다.
+
+---
+
+## 21. Clean Docker GitHub-only 재현성 검증
+
+하의 제출 Runtime은 기존 개발 Directory가 보이지 않는 조건에서도 Repository Dependency가 완결되는지 추가 검증했습니다.
+
+검증에는 실제 Runtime과 동일한 Docker Image인
+
+    roarm_dual_working_20260814:latest
+
+를 사용했습니다.
+
+Clean Container 조건은 다음과 같습니다.
+
+- `/workspace/project_train`을 빈 Read-only Directory로 대체
+- 해당 Directory 내부 File Count = 0
+- `PYTHONPATH`에 기존 개발 Directory 없음
+- `/dev/roarm_1` 미전달
+- `/dev/roarm_2` 미전달
+- `/dev/ttyACM0` 미전달
+- `/dev/video0`만 전달
+- NVIDIA Runtime 사용
+- GitHub Repository를 Container 내부에 Fresh Clone
+
+GitHub Fresh Clone 상태에서 다음 검증을 통과했습니다.
+
+    Dependency Check          : PASS 19 / 19
+    Lower Homography          : PASS
+    Camera Open               : PASS
+    Camera Control            : PASS
+    Camera Undistortion       : PASS
+    Segmentation TensorRT     : PASS
+    Bottom Pose TensorRT      : PASS
+    TensorRT Warm-up          : PASS
+    Bottom VLA Runtime        : PASS
+
+실제 실행 로그에서 Runtime Source, Model 및 Calibration은 모두 Fresh Clone Repository 내부의 경로를 사용했습니다.
+
+이를 통해 하의 Main Runtime의 Source, Model 및 Calibration Dependency가 기존 `/workspace/project_train` 개발 Directory 없이 GitHub Repository 내부에서 완결됨을 확인했습니다.
+
+본 Clean Docker Test에서는 Robot Device 자체를 Container에 전달하지 않았으므로 실제 Physical Robot Motion은 검증 범위에 포함하지 않았습니다.

@@ -120,3 +120,49 @@ Homography는 실제 상의 Runtime에서 검증된 H-only Calibration 파일을
 `UPPER_RUNTIME_MANIFEST.json`에는 제출용 상의 Runtime에 필요한 주요 파일과 각 파일의 SHA-256 해시값이 기록되어 있습니다.
 
 제출용 Runtime은 코드, 보정 파일, 카메라 Calibration 및 TensorRT Engine의 누락이나 잘못된 교체를 방지하기 위해 실제 검증된 파일의 SHA-256을 기준으로 구성했습니다.
+
+---
+
+## 향후 학습 기반 후속 자동화 계획
+
+현재 GitHub에 포함된 Upper Main Runtime은 Basket Grasp, Folding Board 배치, 의류 재정렬, Segmentation / Upper Pose 기반 파지점 결정, Dual-Arm Lift, Aerial Alignment 및 Laydown까지 수행합니다.
+
+향후에는 이 Main Runtime 이후에 직접 구축한 Dataset과 학습 Model을 이용하는 Garment-State Decision Module을 추가할 예정입니다.
+
+후속 Module의 목표는 Laydown 이후 새로운 Camera Frame을 관찰하여 다음과 같은 추가 Manipulation의 필요 여부를 스스로 판단하는 것입니다.
+
+- Wrinkle Unfold
+- Fold Correction
+- Position Adjustment
+- 추가 Alignment
+- Pull / Reposition
+- Rejudge
+- Finish
+
+목표 Closed-loop 구조:
+
+    Current Upper Main Runtime
+            ↓
+    Laydown
+            ↓
+    Camera Re-observation
+            ↓
+    Learned Garment-State Model
+            ↓
+    Additional Action Decision
+            ↓
+    Manipulation
+            ↓
+    Re-observation
+            ↓
+    Additional Action / Termination Decision
+
+최종적으로는 현재 상의가 충분히 펼쳐지고 정렬되어 더 이상의 Robot Manipulation이 필요하지 않은지를 판단하고,
+
+    FOLDING_READY = TRUE
+
+조건이 만족되면 Folding Board 단계로 이동하는 것을 목표로 합니다.
+
+현재 이 학습 기반 후속 Module은 개발 단계이며, 현재 GitHub에 포함된 검증 완료 Upper Main Runtime과 구분하여 관리합니다.
+
+향후 Learned Policy가 어떤 Action을 수행할지를 결정하더라도 실제 Grasp Point, Motion Geometry, Reachability 및 Hardware Safety는 기존에 검증된 Robot Planner와 Runtime을 최대한 재사용하는 방향으로 구성합니다.
