@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "created_or_updated_at_unix": 1785133971.094724,
+  "type": "basket_arm2_5point_pixel_to_xy_affine",
+  "camera": {
+    "device": "0",
+    "frame_width": 1280,
+    "frame_height": 720
+  },
+  "arm": {
+    "name": "ARM2",
+    "port": "/dev/roarm_2",
+    "feedback_command": 105
+  },
+  "five_point_protocol": [
+    {
+      "label": "P0_V0",
+      "description": "visible corner adjacent to hidden corner on edge A"
+    },
+    {
+      "label": "P1_V1",
+      "description": "visible corner diagonally opposite the hidden corner"
+    },
+    {
+      "label": "P2_V2",
+      "description": "other visible corner adjacent to hidden corner on edge B"
+    },
+    {
+      "label": "P3_E0",
+      "description": "point on straight edge H-V0; avoid rounded corner"
+    },
+    {
+      "label": "P4_E2",
+      "description": "point on straight edge H-V2; avoid rounded corner"
+    }
+  ],
+  "points": [
+    {
+      "label": "P0_V0",
+      "description": "visible corner adjacent to hidden corner on edge A",
+      "pixel_uv": [
+        25.0,
+        287.0
+      ],
+      "arm2_xyz": [
+        -249.8963784,
+        86.39893359,
+        -154.9668803
+      ]
+    },
+    {
+      "label": "P1_V1",
+      "description": "visible corner diagonally opposite the hidden corner",
+      "pixel_uv": [
+        50.0,
+        32.0
+      ],
+      "arm2_xyz": [
+        -232.7712899,
+        393.8153246,
+        -138.5054118
+      ]
+    },
+    {
+      "label": "P2_V2",
+      "description": "other visible corner adjacent to hidden corner on edge B",
+      "pixel_uv": [
+        275.0,
+        15.0
+      ],
+      "arm2_xyz": [
+        3.125875741,
+        407.5428415,
+        -106.530754
+      ]
+    },
+    {
+      "label": "P3_E0",
+      "description": "point on straight edge H-V0; avoid rounded corner",
+      "pixel_uv": [
+        141.0,
+        279.0
+      ],
+      "arm2_xyz": [
+        -125.9040967,
+        79.99873398,
+        -141.3272311
+      ]
+    },
+    {
+      "label": "P4_E2",
+      "description": "point on straight edge H-V2; avoid rounded corner",
+      "pixel_uv": [
+        269.0,
+        136.0
+      ],
+      "arm2_xyz": [
+        9.881281648,
+        238.4411257,
+        -107.4472363
+      ]
+    }
+  ],
+  "affine": {
+    "direction": "pixel_uv_to_arm2_xy",
+    "matrix_2x3": [
+      [
+        1.0741129914670713,
+        0.04707878135474264,
+        -289.43049767213535
+      ],
+      [
+        -0.09607095981730028,
+        -1.2520605692497657,
+        443.40085103984444
+      ]
+    ],
+    "rank": 3,
+    "error_mm": [
+      4.813395916444195,
+      4.933046941202708,
+      9.98738204242859,
+      1.1843277891345376,
+      9.688347120438118
+    ],
+    "mean_error_mm": 6.12129996192963,
+    "max_error_mm": 9.98738204242859
+  },
+  "geometry": {
+    "corner_order": [
+      "H_reconstructed",
+      "P0_V0",
+      "P1_V1",
+      "P2_V2"
+    ],
+    "hidden_corner_pixel_uv": [
+      262.323991993137,
+      270.63282813840436
+    ],
+    "basket_corners_pixel_uv": [
+      [
+        262.323991993137,
+        270.63282813840436
+      ],
+      [
+        25.0,
+        287.0
+      ],
+      [
+        50.0,
+        32.0
+      ],
+      [
+        275.0,
+        15.0
+      ]
+    ],
+    "diagonal_1_pixel_uv": [
+      [
+        262.323991993137,
+        270.63282813840436
+      ],
+      [
+        50.0,
+        32.0
+      ]
+    ],
+    "diagonal_2_pixel_uv": [
+      [
+        25.0,
+        287.0
+      ],
+      [
+        275.0,
+        15.0
+      ]
+    ],
+    "temporary_grasp_pixel_uv": [
+      152.98796579312818,
+      147.74909321707653
+    ],
+    "hidden_corner_arm2_xy_direct": [
+      16.504516430387962,
+      72.64792522221784
+    ],
+    "hidden_corner_arm2_xy_affine": [
+      5.076173844540676,
+      79.35044048931337
+    ],
+    "temporary_grasp_arm2_xy_direct": [
+      -121.0740261786024,
+      249.90436815736348
+    ],
+    "temporary_grasp_arm2_xy_affine": [
+      -118.14828882068821,
+      243.71233656609277
+    ],
+    "temporary_grasp_crosscheck_error_mm": 6.84844466392108,
+    "image_edge_line_angle_deg": 83.21602592995706,
+    "robot_edge_line_angle_deg": 84.75746500831805,
+    "basket_polygon_area_px2": 58705.16642836717,
+    "rim_z_mean": -129.7555027,
+    "rim_z_min": -154.9668803,
+    "rim_z_max": -106.530754
+  },
+  "temporary_grasp_policy": {
+    "current_policy": "intersection_of_reconstructed_basket_diagonals",
+    "robot_xy_to_use_later": "geometry.temporary_grasp_arm2_xy_direct",
+    "note": "Geometry-only temporary grasp point; no clothing perception yet"
+  }
+}

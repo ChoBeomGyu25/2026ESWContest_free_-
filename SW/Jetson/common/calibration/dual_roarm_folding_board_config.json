@@ -1,0 +1,212 @@
+{
+  "camera_index": 0,
+  "camera_width": 1280,
+  "camera_height": 720,
+  "camera_backend": "v4l2",
+  "aruco": {
+    "dictionary": "DICT_4X4_50",
+    "required_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "marker_board_mm": {
+      "0": [
+        0.0,
+        0.0
+      ],
+      "1": [
+        0.0,
+        -780.0
+      ],
+      "2": [
+        649.0,
+        0.0
+      ],
+      "3": [
+        649.0,
+        -780.0
+      ]
+    }
+  },
+  "dual_roarm": {
+    "split_board_x": 324.5,
+    "arm1": {
+      "name": "ARM1_ID2_ID3_SIDE",
+      "side": "ID2_ID3 side",
+      "port": "/dev/roarm_1",
+      "baudrate": 115200,
+      "calib_points": [
+        {
+          "label": "ID2",
+          "board_xy": [
+            649.0,
+            0.0
+          ]
+        },
+        {
+          "label": "ID3",
+          "board_xy": [
+            649.0,
+            -780.0
+          ]
+        },
+        {
+          "label": "BLUE_EXTRA",
+          "board_xy": [
+            396.0,
+            -380.0
+          ]
+        }
+      ],
+      "calib_roarm_points": [
+        [
+          13.02564943,
+          385.8263352
+        ],
+        [
+          76.58824335,
+          -381.9719061
+        ],
+        [
+          296.8860427,
+          26.94323705
+        ]
+      ],
+      "calib_roarm_z": [
+        -86.65036301,
+        -91.70694394,
+        -86.0679069
+      ],
+      "board_to_roarm_affine_2x3": [
+        [
+          -0.9995810330440761,
+          -0.08149050502513688,
+          661.7537398758756
+        ],
+        [
+          -0.059970179066318845,
+          0.9843567196157076,
+          424.74698141421413
+        ]
+      ],
+      "safe_hover_z": 180.0,
+      "tool_t_rad": 3.14,
+      "move_speed": 0.12,
+      "grip_z": -88.14173794999999,
+      "surface_z_plane_abc": [
+        0.008659182290408438,
+        0.0034594129486516523,
+        -87.02548204651062
+      ]
+    },
+    "arm2": {
+      "name": "ARM2_ID0_ID1_SIDE",
+      "side": "ID0_ID1 side",
+      "port": "/dev/roarm_2",
+      "baudrate": 115200,
+      "calib_points": [
+        {
+          "label": "ID0",
+          "board_xy": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "label": "ID1",
+          "board_xy": [
+            0.0,
+            -780.0
+          ]
+        },
+        {
+          "label": "RED_EXTRA",
+          "board_xy": [
+            273.0,
+            -380.0
+          ]
+        }
+      ],
+      "calib_roarm_points": [
+        [
+          59.51559631,
+          -381.0614128
+        ],
+        [
+          57.86957285,
+          374.2872829
+        ],
+        [
+          307.1199078,
+          -5.654031088
+        ]
+      ],
+      "calib_roarm_z": [
+        -95.95342035,
+        -95.07108007,
+        -92.95324051
+      ],
+      "board_to_roarm_affine_2x3": [
+        [
+          0.9099128950737303,
+          0.002110286487179147,
+          59.51559630999997
+        ],
+        [
+          0.027168467029958045,
+          -0.9683957637179489,
+          -381.06141279999997
+        ]
+      ],
+      "safe_hover_z": 180.0,
+      "tool_t_rad": 3.14,
+      "move_speed": 0.12,
+      "grip_z": -94.65924697666667,
+      "surface_z_plane_abc": [
+        0.01876574970414133,
+        -0.0033473569230767497,
+        -106.65284589999999
+      ]
+    },
+    "workspace": {
+      "step1_enabled": true,
+      "dead_half_width": 40.0
+    }
+  },
+  "installation_profile": {
+    "name": "folding_board_649x780_mirrored_a158",
+    "units": "mm",
+    "physical_marker_board_mm": {
+      "0": [
+        0.0,
+        0.0
+      ],
+      "1": [
+        0.0,
+        -780.0
+      ],
+      "2": [
+        -649.0,
+        0.0
+      ],
+      "3": [
+        -649.0,
+        -780.0
+      ]
+    },
+    "physical_extra_points_mm": {
+      "RED_EXTRA": [
+        -273.0,
+        -380.0
+      ],
+      "BLUE_EXTRA": [
+        -396.0,
+        -380.0
+      ]
+    },
+    "internal_coordinate_rule": "x_internal = -x_physical; y_internal = y_physical",
+    "reason": "Preserve A157 smaller-x ARM2 / larger-x ARM1 workspace and planner invariants"
+  }
+}
