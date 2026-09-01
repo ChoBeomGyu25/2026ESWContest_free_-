@@ -23,3 +23,7 @@ SW/Jetson/preprocessing/upper/outputs/
 # OS metadata
 .DS_Store
 Thumbs.db
+SW/Jetson/preprocessing/upper/basket_torque_descent_*.csv
+
+# Lower runtime generated artifacts
+SW/Jetson/preprocessing/lower/outputs/
