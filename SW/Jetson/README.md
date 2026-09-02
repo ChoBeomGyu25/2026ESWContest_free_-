@@ -467,15 +467,11 @@ Lower Version은 Raw / Corrected Frame Geometry를 구분하기 위해 `H`, `raw
 - 향후 VLA Model이 Action Selection을 자동 수행
 - Manipulation 반복과 Folding-ready 종료조건 판단까지 자동화 목표
 
-자세한 내용:
-
-    SW/Jetson/policy/README.md
-
 ---
 
-# 14. Runtime
+# 14. Runtime Architecture
 
-`runtime/`은 Perception, Policy, Robot Execution 및 Folding 단계의 전체 Software Architecture를 설명합니다.
+「접신」의 실제 Runtime은 Perception, Action Decision, Robot Execution 및 Folding 단계의 흐름으로 구성됩니다.
 
 현재 실제 검증된 Runtime Source는 다음 Directory에 위치합니다.
 
