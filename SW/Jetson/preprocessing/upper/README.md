@@ -61,7 +61,7 @@
 
 `run_upper.py`는 다음 과정을 수행합니다.
 
-1. ARM2가 바구니에서 의류 파지
+1. 로봇팔이 바구니에서 의류 파지
 2. Folding Board 위로 의류 이동
 3. 의류 배치
 4. Segmentation 및 상의 Pose 추론
