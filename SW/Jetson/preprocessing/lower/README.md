@@ -3,11 +3,11 @@
 본 디렉터리는 **2026 임베디드 소프트웨어 경진대회 자유공모** 출품작  
 **옷개스트라 - 접신** 프로젝트의 Jetson 기반 **하의 인식·판단·조작 Runtime**을 포함합니다.
 
-현재 제출 Runtime의 최종 실행 파일은 `bottom_vla-38_submission_full_auto.py`입니다.
+현재 하의 Runtime의 최종 실행 파일은 `bottom_vla-38_submission_full_auto.py`입니다.
 
 카메라 영상으로부터 하의 상태를 반복적으로 관찰하고, 현재 상태에 적합한 동작을 자동으로 선택하여 하의가 접을 수 있는 상태가 될 때까지 로봇 조작을 반복합니다.
 
-기존 사용자 개입 방식(Human-in-the-loop)에서 사용자가 직접 다음 동작을 선택하고 승인하던 과정은 현재 제출용 V38 완전 자동 Runtime에서 자동화되었습니다.
+기존 사용자 개입 방식(Human-in-the-loop)에서 사용자가 직접 다음 동작을 선택하고 승인하던 과정은 현재 V38 완전 자동 Runtime에서 자동화되었습니다.
 
 ---
 
@@ -32,7 +32,7 @@
     ↓
 새 영상 재관찰
     ↓
-다음 action 자동 결정
+다음 Action 자동 결정
     ↓
 FINISH
 ```
@@ -74,7 +74,7 @@ main-33_submission_runtime.py
 
 `run_lower.py`는 현재 GitHub Repository의 위치를 기준으로 필요한 Runtime 소스, AI 모델, 카메라 보정 파일 및 로봇 보정 파일의 경로를 계산하여 하위 Runtime에 전달합니다.
 
-이를 통해 개발 과정에서 사용했던 `/workspace/project_train/...` 형태의 절대경로에 직접 의존하지 않고, GitHub Repository 내부의 제출 파일을 이용하여 실행할 수 있도록 구성했습니다.
+이를 통해 개발 과정에서 사용했던 `/workspace/project_train/...` 형태의 절대경로에 직접 의존하지 않고, GitHub Repository 내부의 파일을 이용하여 실행할 수 있도록 구성했습니다.
 
 ---
 
@@ -131,7 +131,7 @@ SW/Jetson/models/segmentation/
 
 ### bottom_vla-38_submission_full_auto.py
 
-V38은 현재 제출용 하의 Runtime의 최상위 Full-Auto Controller입니다.
+V38은 현재 하의 Runtime의 최상위 Full-Auto Controller입니다.
 
 주요 역할은 다음과 같습니다.
 
@@ -140,9 +140,9 @@ V38은 현재 제출용 하의 Runtime의 최상위 Full-Auto Controller입니�
 * 현재 의류 상태 재판단
 * 다음 동작 자동 선택
 * 고정 동작 계획(Frozen Plan) 생성 및 실행 관리
-* action 완료 후 다음 영상 재관찰
+* Action 완료 후 다음 영상 재관찰
 * `FINISH` 상태 관리
-* Runtime Source Integrity 유지 확인
+* Runtime 소스 무결성 확인
 * 실제 실행 전 안전 조건 확인
 
 개념적인 실행 흐름은 다음과 같습니다.
@@ -173,11 +173,11 @@ FINISH
 
 ---
 
-## 5. 제출용 Runtime 기반 코드
+## 5. Full-Auto Runtime 기반 코드
 
 ### bottom_vla-23_submission_runtime.py
 
-V38이 사용하는 제출용 Runtime 기반 코드입니다.
+V38이 사용하는 Full-Auto Runtime 기반 코드입니다.
 
 주요 역할은 다음과 같습니다.
 
@@ -223,7 +223,7 @@ V38이 사용하는 제출용 Runtime 기반 코드입니다.
 * 로봇 및 폴딩보드 설정 불러오기
 * 각 동작 Runtime 소스 동적 연결
 * 소스 SHA-256 무결성 확인
-* 두 대의 robot arms Runtime 관리
+* 두 대의 Robot Arm Runtime 관리
 
 V38 / V23 Runtime에서는 다음 동작 소스를 사용합니다.
 
@@ -248,7 +248,7 @@ ALIGN → align-11.py
 
 바구니에서 의류를 가져오는 동작에 필요한 기존 로봇 제어 구조와 보정 정보를 제공합니다.
 
-현재 제출용 완전 자동 Runtime에서는 바구니 파지 동작이 제출용 Runtime 구조에 통합되어 있으며, 본 파일은 소스 의존성 및 무결성 검사 대상으로 함께 유지됩니다.
+현재 Full-Auto Runtime에서는 바구니 파지 동작이 Runtime 구조에 통합되어 있으며, 본 파일은 소스 의존성 및 무결성 검사 대상으로 함께 유지됩니다.
 
 ---
 
@@ -357,7 +357,7 @@ parse_class_names()
 
 주요 기능은 다음과 같습니다.
 
-* 빛 반사 및 눈부심 영향 완화
+* 빛 반사 영향 완화
 * 주름 Heatmap 분석
 * 하의 Pose 추론
 * Pose 기반 의류 영역 재검출
@@ -393,7 +393,7 @@ evaluate_waist_lift_semantics()
 * 큰 접힘
 * 추가 조작 필요 여부
 
-미세한 주름이나 의류 자체에서 자연스럽게 발생하는 무늬보다 실제로 추가 조작이 필요한 큰 접힘과 구조적인 이상 상태를 중심으로 판단하도록 사용됩니다.
+미세한 주름이나 의류 자체에서 자연스럽게 발생하는 고유 주름보다 실제로 추가 조작이 필요한 큰 접힘과 구조적인 이상 상태를 중심으로 판단하도록 사용됩니다.
 
 본 모듈 역시 로봇에 직접 이동 명령을 보내는 동작 Runtime이 아니라 의류 상태를 분석하는 역할을 담당합니다.
 
@@ -403,7 +403,7 @@ evaluate_waist_lift_semantics()
 
 `step_d25_v2.py`는 Runtime 실행 과정에서 `step_d23_v2`라는 이름으로 참조될 수 있습니다.
 
-하지만 최종 제출 Runtime에서는 별도의 `step_d23_v2.py` 파일을 사용하지 않습니다.
+하지만 현재 V38 Runtime에서는 별도의 `step_d23_v2.py` 파일을 사용하지 않습니다.
 
 동작 모듈이 D25를 불러오기 전에 현재 모듈을 다음과 같이 `step_d23_v2` 이름으로 등록합니다.
 
@@ -483,7 +483,7 @@ SW/Jetson/preprocessing/lower/dual/
 └── elp_ov2710_camera_controls.json
 ```
 
-현재 제출 Runtime의 카메라 설정에는 다음 값이 포함됩니다.
+현재 V38 Runtime의 카메라 설정에는 다음 값이 포함됩니다.
 
 ```text
 auto_exposure = 1
@@ -592,7 +592,7 @@ basket_arm2_5point_affine.json
 | `X` | 완전 자동 작업 시작 |
 | `Q` / `ESC` | 프로그램 종료 / 긴급 중단 |
 
-기존 사용자 개입 Runtime에서 사용했던 숫자 동작 선택 키와 `ENTER` 기반 동작 승인 과정은 현재 V38 제출 Runtime의 기본 운용 방식이 아닙니다.
+기존 사용자 개입 Runtime에서 사용했던 숫자 동작 선택 키와 `ENTER` 기반 동작 승인 과정은 현재 V38 Runtime의 기본 운용 방식이 아닙니다.
 
 V38에서는 `X` 입력 이후 완전 자동 작업이 시작되며, 시스템이 새로 획득한 영상을 바탕으로 다음 동작을 자동으로 결정합니다.
 
@@ -606,13 +606,13 @@ V38에서는 `X` 입력 이후 완전 자동 작업이 시작되며, 시스템�
 cd /workspace/2026ESWContest_free_Otgaestra
 ```
 
-실제 로봇 또는 카메라 Runtime을 시작하지 않고 제출 파일의 존재 여부 및 SHA-256을 검사합니다.
+실제 로봇 또는 카메라 Runtime을 시작하지 않고 GitHub 제출본의 필수 파일 존재 여부 및 SHA-256을 검사합니다.
 
 ```bash
 python3 SW/Jetson/preprocessing/lower/run_lower.py --paths-only
 ```
 
-현재 V38 로컬 제출본에서 확인된 결과는 다음과 같습니다.
+현재 V38 GitHub 제출본에서 확인된 결과는 다음과 같습니다.
 
 ```text
 PASS=20
@@ -624,7 +624,7 @@ TOTAL=20
 
 ```text
 V38 완전 자동 Runtime
-V23 제출용 Runtime 기반 코드
+V23 Full-Auto Runtime 기반 코드
 Main33 Runtime
 50-1.py
 54-3.py
@@ -825,7 +825,7 @@ GitHub 제출본에서는 단순히 코드 중복을 줄이는 것보다 **실�
 
 ## 24. 검증 환경
 
-현재 제출 Runtime의 개발 및 검증 환경은 다음과 같습니다.
+현재 V38 Runtime의 개발 및 검증 환경은 다음과 같습니다.
 
 ```text
 NVIDIA Jetson Orin Nano
@@ -845,7 +845,7 @@ Docker 29.7.2
 
 ## 25. 현재 V38 제출본 검증 상태
 
-현재 V38 완전 자동 로컬 제출본에서 완료한 검증은 다음과 같습니다.
+현재 V38 GitHub 제출본에서 완료한 검증은 다음과 같습니다.
 
 ```text
 V38 의존성 SHA / 경로 검사
@@ -869,7 +869,7 @@ FAIL=0
 
 이전 사용자 개입 방식의 하의 Runtime에서 수행했던 새 저장소 복제 및 초기 실행 환경 검증 결과는 현재 V38 완전 자동 Runtime의 검증 결과로 간주하지 않습니다.
 
-V38 저장소 기준 재현성 검증은 최종 GitHub 제출 파일을 기준으로 별도로 수행합니다.
+V38 Repository 기준 재현성 검증은 최종 GitHub 제출본을 기준으로 별도로 수행합니다.
 
 ---
 
@@ -981,4 +981,4 @@ FINISH
 FINISH
 ```
 
-즉 현재 V38 제출 Runtime은 기존의 수동 동작 선택 방식에서 확장되어, **하의 상태 인식부터 다음 조작 선택, 두 로봇팔을 이용한 실제 의류 조작, 재관찰 및 종료 조건 판단까지 반복적으로 수행하는 완전 자동 하의 정리 Runtime**으로 구성되어 있습니다.
+즉 현재 V38 Runtime은 기존의 수동 동작 선택 방식에서 확장되어, **하의 상태 인식부터 다음 조작 선택, 두 로봇팔을 이용한 실제 의류 조작, 재관찰 및 종료 조건 판단까지 반복적으로 수행하는 완전 자동 하의 정리 Runtime**으로 구성되어 있습니다.
