@@ -1,4 +1,4 @@
-cd /workspace/2026ESWContest_free_- && \
+cd /workspace/2026ESWContest_free_Otgaestra && \
 cat > SW/Jetson/preprocessing/lower/README.md <<'EOF'
 # 하의 의류 인식 및 조작 Runtime
 
@@ -419,7 +419,7 @@ TensorRT 기반 Segmentation Model입니다.
 
 Repository Root에서:
 
-    cd /workspace/2026ESWContest_free_-
+    cd /workspace/2026ESWContest_free_Otgaestra
 
 다음 명령을 실행합니다.
 
@@ -450,7 +450,7 @@ Repository Root에서:
 
 Repository Root:
 
-    cd /workspace/2026ESWContest_free_-
+    cd /workspace/2026ESWContest_free_Otgaestra
 
 ### Dependency 확인
 
