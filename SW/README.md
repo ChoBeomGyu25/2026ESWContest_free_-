@@ -2,7 +2,7 @@
 
 이 디렉터리는 팀 **옷개스트라**의 자동 의류 정리 로봇 시스템 **「접신」**을 구성하는 전체 Software를 관리합니다.
 
-본 시스템은 NVIDIA Jetson Orin Nano 기반의 Vision AI 및 Dual Robot Manipulation, Folding Board 제어, 사용자 Interface를 결합하여 비정형 의류를 인식하고 펼치고 정렬한 뒤 최종적으로 Folding Board를 이용해 접는 것을 목표로 합니다.
+본 시스템은 NVIDIA Jetson Orin Nano 기반의 Vision AI 및 Dual Robotic Arms Manipulation, Folding Board 제어, 사용자 인터페이스를 결합하여 비정형 의류를 인식하고 펼치고 정렬한 뒤 최종적으로 Folding Board를 이용해 접는 것을 목표로 합니다.
 
 의류는 동일한 종류라도 초기 위치, 회전, 구김, 접힘 형태가 매번 달라지기 때문에 단순한 고정 Sequence만으로 전체 작업을 안정적으로 수행하기 어렵습니다.
 
@@ -57,13 +57,13 @@ NVIDIA Jetson Orin Nano에서 다음 기능을 수행합니다.
 
 - ELP OV2710 Camera 영상 입력
 - Camera Undistortion
-- Garment Segmentation
-- Upper / Lower Pose Estimation
-- Garment Mask 및 Contour 분석
+- 의류 Segmentation
+- 상의 / 하의 특징점 추론
+- 의류 Mask 및 Contour 분석
 - Keypoint / Landmark 분석
 - Garment Geometry 계산
 - Folding Board 기준 좌표 변환
-- Robot Grasp Point 계산
+- Robot Arm의 파지점 계산
 - Manipulation Planning
 - Dual Robotic Arms 제어
 - 조작 후 Garment State 재관찰
@@ -91,7 +91,7 @@ NVIDIA Jetson Orin Nano에서 다음 기능을 수행합니다.
         ↓
     Garment Reposition
         ↓
-    Segmentation + Upper Pose Estimation
+    Segmentation + 상의 특장점 추론
         ↓
     Grasp Point 결정
         ↓
@@ -127,7 +127,7 @@ Dependency 확인:
 
 현재 상의 Main Runtime 이후에는 **학습 모델 기반의 의류 상태 판단 및 추가 조작 단계**를 연결할 예정입니다.
 
-이 후속 단계의 목표는 의류가 보드 위에 Laydown된 이후 현재 상태를 다시 관찰하고 다음과 같은 조작의 필요 여부를 AI가 스스로 판단하는 것입니다.
+이 후속 단계의 목표는 의류가 보드 위에 Laydown된 이후 현재 상태를 다시 관찰하고 다음과 같은 조작의 필요 여부를 자동으로 판단하는 것입니다.
 
 예시:
 
@@ -150,7 +150,7 @@ Dependency 확인:
             ↓
     Learned Garment-State Model
             ↓
-    필요한 추가 Action 판단
+    필요한 추가 동작 판단
             ↓
     Wrinkle Unfold / Position Adjust / Alignment
             ↓
@@ -187,7 +187,7 @@ Dependency 확인:
 
     Camera Observation
             ↓
-    Segmentation / Bottom Pose
+    YoLo26 Segmentation / YoLo26 Bottom Pose
             ↓
     의류 상태 분석
             ↓
@@ -268,13 +268,13 @@ Dependency 검사:
 
 사용자가 선택하는 Semantic Action은 향후 VLA Model이 학습해야 할 Action Decision 정보를 제공합니다.
 
-이를 통해 다양한 초기 배치, 구김, Fold, Waist 방향, Leg 위치 및 Garment Geometry에서 어떤 조작을 수행해야 하는지를 학습하기 위한 Dataset을 구축합니다.
+이를 통해 다양한 초기 배치, 구김, 접힘, 허리 방향, 다리 위치 및 Garment Geometry에서 어떤 조작을 수행해야 하는지를 학습하기 위한 데이터셋을 구축합니다.
 
 ---
 
 # 6. 하의 향후 VLA 기반 자동화 계획
 
-충분한 VLA Data를 확보한 이후에는 현재 사람이 수행하는 Semantic Action 선택을 학습 Model로 대체하는 것을 목표로 합니다.
+충분한 VLA Data를 확보한 이후에는 현재 사람이 수행하는 Semantic Action 선택을 학습 모델로 대체하는 것을 목표로 합니다.
 
 현재 구조:
 
@@ -316,21 +316,21 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
 
 - 하의가 충분히 펼쳐졌는가
 - 큰 Fold가 제거되었는가
-- Waist 및 Leg 구조가 정상적으로 배치되었는가
-- Garment Center가 적절한 위치에 있는가
+- 허리 및 다리 구조가 정상적으로 배치되었는가
+- 의류 중심이 적절한 위치에 있는가
 - Folding Board 기준 방향이 충분히 정렬되었는가
-- 추가 Manipulation이 실제로 필요한가
+- 추가 조작이 실제로 필요한가
 - 현재 상태에서 Folding Board를 동작시켜도 되는가
 
 최종 Lower Pipeline:
 
     Camera Observation
             ↓
-    Garment State Analysis
+    의류 상태 분석
             ↓
-    VLA Action Decision
+    VLA 동작 결정
             ↓
-    Manipulation
+    조작
             ↓
     Re-observation
             ↓
@@ -340,7 +340,7 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
         │ 추가 조작 필요 │
         └───────┬───────┘
                 │ YES
-                └────→ Manipulation 반복
+                └────→ 의류 조작 반복
 
                 │ NO
                 ↓
@@ -356,13 +356,13 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
 
     Garment Input
         ↓
-    Upper / Lower Perception
+    상의 / 하의 Perception
         ↓
-    Garment State Understanding
+    의류 상태 확인
         ↓
     Learned Action Policy
         ↓
-    Dual RoArm Manipulation
+    Dual Robotic Arms Manipulation
         ↓
     Re-observation
         ↓
@@ -374,7 +374,7 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
         ↓
     Folded Garment
 
-즉 최종 목표는 사람이 각 Manipulation 단계를 직접 지정하지 않아도 System이 의류의 현재 상태를 반복적으로 관찰하면서 필요한 조작을 선택하고 수행한 뒤 **의류가 Folding 가능한 상태가 되었는지를 스스로 판단하는 End-to-End Closed-loop Garment Manipulation System**을 구현하는 것입니다.
+즉 최종 목표는 사람이 각 조작 단계를 직접 지정하지 않아도 시스템이 의류의 현재 상태를 반복적으로 관찰하면서 필요한 조작을 선택하고 수행한 뒤 **의류가 Folding 가능한 상태가 되었는지를 스스로 판단하는 End-to-End Closed-loop Garment Manipulation System**을 구현하는 것입니다.
 
 ---
 
@@ -388,8 +388,8 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
 
 주요 기능:
 
-- Garment Segmentation
-- Upper / Lower Pose Estimation
+- 의류 Segmentation
+- 상의 / 하의 특징점 추론
 - Mask / Contour Geometry
 - Landmark Analysis
 - Grasp Point 계산
@@ -451,11 +451,11 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
 
 # 12. Policy
 
-`Jetson/policy/`는 Garment State에서 다음 Manipulation Action을 결정하는 상위 Decision Layer를 설명합니다.
+`Jetson/policy/`는 Garment State에서 다음 의류 조작 동작을 결정하는 상위 Decision Layer에 대한 설명을 담고 있습니다.
 
 현재 상의의 일부 Action Logic은 검증된 Main Runtime 내부에 포함되어 있으며, 향후 학습 기반 Upper Policy를 추가할 예정입니다.
 
-하의는 현재 Human-in-the-loop 방식으로 VLA 학습 Data를 수집하고 있으며, 향후 VLA Model이 Semantic Action Selection과 Termination Condition 판단을 담당하도록 확장할 예정입니다.
+하의는 현재 Human-in-the-loop 방식으로 VLA 학습 데이터를 수집하고 있으며, 향후 VLA Model이 Semantic Action Selection과 의류 조작 종료 조건 판단을 담당하도록 확장할 예정입니다.
 
 자세한 내용:
 
@@ -465,7 +465,7 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
 
 # 13. Runtime
 
-`Jetson/runtime/`은 Perception, Policy 및 Hardware Execution을 연결하는 전체 Runtime Architecture를 설명합니다.
+`Jetson/runtime/`은 Perception, Policy 및 Hardware Execution을 연결하는 전체 Runtime Architecture를 설명하는 내용을 담고 있습니다.
 
 실제 검증된 실행 Source는 현재 `preprocessing/upper/` 및 `preprocessing/lower/` 내부의 기존 Runtime 구조를 유지하고 있습니다.
 
@@ -479,9 +479,9 @@ VLA Model은 Robot Manipulation 후 새롭게 관찰된 하의 상태를 다시 
 
 # 14. Arduino
 
-`Arduino/`는 Folding Board의 Servo Motor 구동 및 Folding Mechanism 제어와 관련된 Software를 관리합니다.
+`Arduino/`는 Folding Board의 Servo Motor 구동 및 Folding Mechanism 제어와 관련된 Software를 담고 있습니다.
 
-Jetson에서 Garment Manipulation이 완료되고 Folding-ready 상태가 결정되면 Folding Board 제어 단계와 연동하는 구조를 목표로 합니다.
+Jetson에서 의류 조작이 완료되고 Folding-ready 상태가 결정되면 Folding Board 제어 단계와 연동하는 구조를 목표로 합니다.
 
 실제 Source와 세부 실행 방법은 해당 Directory의 파일을 기준으로 확인하십시오.
 
@@ -489,7 +489,7 @@ Jetson에서 Garment Manipulation이 완료되고 Folding-ready 상태가 결정
 
 # 15. App
 
-`App/`은 「접신」 시스템과 연동되는 사용자 Application 관련 Software를 관리합니다.
+`App/`은 「접신」 시스템과 연동되는 사용자 어플리케이션 관련 Software를 관리합니다.
 
 실제 제공 기능과 실행 방법은 해당 Directory의 Source 및 문서를 기준으로 확인하십시오.
 
@@ -500,10 +500,10 @@ Jetson에서 Garment Manipulation이 완료되고 Folding-ready 상태가 결정
 「접신」의 최종 Software 목표는 다음과 같습니다.
 
 1. Camera를 이용하여 비정형 의류 상태를 인식
-2. Upper / Lower Garment 종류에 맞는 Perception 수행
-3. 현재 Garment State에 적절한 Manipulation Action 판단
-4. Dual RoArm M2-S를 이용해 실제 조작 수행
-5. 조작 후 Garment State 재관찰
+2. 상의 / 하의 각각에 맞는 Perception 수행
+3. 현재 의류 상태에 적절한 의류 조작 동작 판단
+4. Dual Robotic Arms를 이용해 실제 조작 수행
+5. 조작 후 의류 상태 재관찰
 6. 필요한 경우 추가 펼침·정렬·위치 보정 수행
 7. AI 기반으로 추가 조작 필요 여부 판단
 8. Folding-ready 종료조건 자동 판단
