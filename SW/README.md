@@ -16,7 +16,7 @@
             ↓
     Action Decision
             ↓
-    Dual RoArm Manipulation
+    Dual Robot Arm Manipulation
             ↓
     New Camera Observation
             ↓
