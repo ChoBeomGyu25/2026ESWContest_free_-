@@ -3,9 +3,9 @@
 본 디렉터리는 **2026 임베디드 소프트웨어 경진대회 자유공모** 출품작  
 **옷개스트라 - 접신** 프로젝트의 Jetson 기반 **하의 인식·판단·조작 Runtime**을 포함합니다.
 
-현재 제출용 Runtime의 최종 실행 파일은 `bottom_vla-38_submission_full_auto.py`입니다.
+현재 제출 Runtime의 최종 실행 파일은 `bottom_vla-38_submission_full_auto.py`입니다.
 
-카메라 영상으로부터 하의 상태를 반복적으로 관찰하고, 현재 상태에 적합한 동작을 자동으로 선택하여 하의가 접기 가능한 상태가 될 때까지 로봇 조작을 반복합니다.
+카메라 영상으로부터 하의 상태를 반복적으로 관찰하고, 현재 상태에 적합한 동작을 자동으로 선택하여 하의가 접을 수 있는 상태가 될 때까지 로봇 조작을 반복합니다.
 
 기존 사용자 개입 방식(Human-in-the-loop)에서 사용자가 직접 다음 동작을 선택하고 승인하던 과정은 현재 제출용 V38 완전 자동 Runtime에서 자동화되었습니다.
 
@@ -32,7 +32,7 @@
     ↓
 새 영상 재관찰
     ↓
-다음 동작 자동 결정
+다음 action 자동 결정
     ↓
 FINISH
 ```
@@ -41,13 +41,13 @@ V38은 한 번의 동작만 수행하고 종료되는 구조가 아닙니다.
 
 각 로봇 동작이 끝난 뒤 카메라 영상을 새로 획득하고, 변화된 하의 상태를 다시 분석하여 다음에 필요한 동작을 자동으로 결정합니다.
 
-이 과정을 반복하여 하의가 접기 가능한 상태에 도달했다고 판단되면 `FINISH` 상태로 종료합니다.
+이 과정을 반복하여 하의가 접을 수 있는 상태에 도달했다고 판단되면 `FINISH` 상태로 종료합니다.
 
 ---
 
 ## 2. Runtime 실행 파일
 
-GitHub 저장소에서는 다음 파일을 통해 하의 Runtime을 실행합니다.
+GitHub Repository에서는 다음 파일을 통해 하의 Runtime을 실행합니다.
 
 ```text
 SW/Jetson/preprocessing/lower/run_lower.py
@@ -72,9 +72,9 @@ bottom_vla-23_submission_runtime.py
 main-33_submission_runtime.py
 ```
 
-`run_lower.py`는 현재 GitHub 저장소의 위치를 기준으로 필요한 Runtime 소스, AI 모델, 카메라 보정 파일 및 로봇 보정 파일의 경로를 계산하여 하위 Runtime에 전달합니다.
+`run_lower.py`는 현재 GitHub Repository의 위치를 기준으로 필요한 Runtime 소스, AI 모델, 카메라 보정 파일 및 로봇 보정 파일의 경로를 계산하여 하위 Runtime에 전달합니다.
 
-이를 통해 개발 과정에서 사용했던 `/workspace/project_train/...` 형태의 절대경로에 직접 의존하지 않고, GitHub 저장소 내부의 제출 파일을 이용하여 실행할 수 있도록 구성했습니다.
+이를 통해 개발 과정에서 사용했던 `/workspace/project_train/...` 형태의 절대경로에 직접 의존하지 않고, GitHub Repository 내부의 제출 파일을 이용하여 실행할 수 있도록 구성했습니다.
 
 ---
 
@@ -118,7 +118,7 @@ SW/Jetson/models/pose/lower/
 └── bottom_pose8_yolo26m_robot_beige_retrain_all_v2.engine
 ```
 
-상의와 하의에서 공통으로 사용하는 의류 영역 분할 모델은 다음 경로를 사용합니다.
+상의와 하의에서 공통으로 사용하는 Garment Segmentation Model은 다음 경로를 사용합니다.
 
 ```text
 SW/Jetson/models/segmentation/
@@ -127,11 +127,11 @@ SW/Jetson/models/segmentation/
 
 ---
 
-## 4. 완전 자동 Runtime 제어부
+## 4. Full-Auto Controller
 
 ### bottom_vla-38_submission_full_auto.py
 
-V38은 현재 제출용 하의 Runtime의 최상위 완전 자동 제어 코드입니다.
+V38은 현재 제출용 하의 Runtime의 최상위 Full-Auto Controller입니다.
 
 주요 역할은 다음과 같습니다.
 
@@ -140,9 +140,9 @@ V38은 현재 제출용 하의 Runtime의 최상위 완전 자동 제어 코드�
 * 현재 의류 상태 재판단
 * 다음 동작 자동 선택
 * 고정 동작 계획(Frozen Plan) 생성 및 실행 관리
-* 동작 완료 후 다음 영상 재관찰
+* action 완료 후 다음 영상 재관찰
 * `FINISH` 상태 관리
-* Runtime 소스 무결성 확인
+* Runtime Source Integrity 유지 확인
 * 실제 실행 전 안전 조건 확인
 
 개념적인 실행 흐름은 다음과 같습니다.
@@ -223,7 +223,7 @@ V38이 사용하는 제출용 Runtime 기반 코드입니다.
 * 로봇 및 폴딩보드 설정 불러오기
 * 각 동작 Runtime 소스 동적 연결
 * 소스 SHA-256 무결성 확인
-* 두 대의 RoArm M2-S Runtime 관리
+* 두 대의 robot arms Runtime 관리
 
 V38 / V23 Runtime에서는 다음 동작 소스를 사용합니다.
 
@@ -304,7 +304,7 @@ ALIGN → align-11.py
 
 ## 8. 하의 인식 모듈
 
-현재 완전 자동 Runtime에서는 다음 세 개의 하의 인식 모듈을 사용합니다.
+현재 Full-Auto Runtime에서는 다음 세 개의 하의 인식 모듈을 사용합니다.
 
 ```text
 step_e49_bottom_perception.py
