@@ -192,7 +192,7 @@ SHA-256:
 
     0a59a7a25f09af2edd235f5ee881ec48c9c52736200f7e91ed69ab1726b26a45
 
-하의 `main-33.py` Runtime은 Raw Frame과 Corrected Frame의 Geometry를 구분하여 처리하므로 `raw_H`와 `camera_geometry` 정보를 포함한 Lower 전용 Homography가 필요합니다.
+하의 `main-33_submission_runtime.py` Runtime은 Raw Frame과 Corrected Frame의 Geometry를 구분하여 처리하므로 `raw_H`와 `camera_geometry` 정보를 포함한 Lower 전용 Homography가 필요합니다.
 
 ---
 
