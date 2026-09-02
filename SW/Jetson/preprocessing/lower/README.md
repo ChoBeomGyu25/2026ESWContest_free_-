@@ -1,11 +1,13 @@
-# 하의 의류 인식 및 Full-Auto Manipulation Runtime
+# 하의 의류 인식 및 완전 자동 조작 Runtime
 
-본 디렉터리는 **2026 임베디드 소프트웨어 경진대회 자유공모** 출품작
+본 디렉터리는 **2026 임베디드 소프트웨어 경진대회 자유공모** 출품작  
 **옷개스트라 - 접신** 프로젝트의 Jetson 기반 **하의 인식·판단·조작 Runtime**을 포함합니다.
 
-현재 제출 Runtime의 최종 Entry Point는 `bottom_vla-38_submission_full_auto.py`이며, 카메라 영상으로부터 하의의 상태를 반복적으로 관찰하고 현재 상태에 적합한 Semantic Action을 자동으로 선택하여 Folding 가능한 상태가 될 때까지 Closed-loop Manipulation을 수행하도록 구성되어 있습니다.
+현재 제출용 Runtime의 최종 실행 파일은 `bottom_vla-38_submission_full_auto.py`입니다.
 
-기존 Human-in-the-loop Runtime에서 사용하던 사용자의 수동 Semantic Action 선택 단계는 현재 제출용 V38 Full-Auto Runtime에서 자동화되었습니다.
+카메라 영상으로부터 하의 상태를 반복적으로 관찰하고, 현재 상태에 적합한 동작을 자동으로 선택하여 하의가 접기 가능한 상태가 될 때까지 로봇 조작을 반복합니다.
+
+기존 사용자 개입 방식(Human-in-the-loop)에서 사용자가 직접 다음 동작을 선택하고 승인하던 과정은 현재 제출용 V38 완전 자동 Runtime에서 자동화되었습니다.
 
 ---
 
@@ -14,51 +16,51 @@
 현재 하의 Runtime의 핵심 흐름은 다음과 같습니다.
 
 ```text
-Camera Input
+카메라 영상 입력
     ↓
-Garment Segmentation
+의류 영역 분할
     ↓
-Bottom Pose / Geometry / Wrinkle / Fold 분석
+하의 특징점 / 형태 / 주름 / 접힘 분석
     ↓
-현재 Garment State 판단
+현재 의류 상태 판단
     ↓
-Semantic Action 자동 결정
+다음 동작 자동 결정
     ↓
-Frozen Manipulation Plan 생성
+고정 동작 계획(Frozen Plan) 생성
     ↓
-Robot Action 실행
+로봇 동작 실행
     ↓
-Fresh Camera Observation
+새 영상 재관찰
     ↓
-다음 Action 자동 결정
+다음 동작 자동 결정
     ↓
 FINISH
 ```
 
-V38은 한 번의 Action만 수행하고 종료되는 구조가 아닙니다.
+V38은 한 번의 동작만 수행하고 종료되는 구조가 아닙니다.
 
-각 Manipulation 이후 새로운 Camera Observation을 획득하고, 변경된 하의 상태를 다시 분석하여 다음 Action을 자동으로 결정합니다.
+각 로봇 동작이 끝난 뒤 카메라 영상을 새로 획득하고, 변화된 하의 상태를 다시 분석하여 다음에 필요한 동작을 자동으로 결정합니다.
 
-이 과정을 반복하여 하의가 Folding 가능한 상태에 도달했다고 판단되면 `FINISH` 상태로 종료합니다.
+이 과정을 반복하여 하의가 접기 가능한 상태에 도달했다고 판단되면 `FINISH` 상태로 종료합니다.
 
 ---
 
-## 2. 실행 Entry Point
+## 2. Runtime 실행 파일
 
-GitHub Repository에서는 다음 Wrapper를 통해 하의 Runtime을 실행합니다.
+GitHub 저장소에서는 다음 파일을 통해 하의 Runtime을 실행합니다.
 
 ```text
 SW/Jetson/preprocessing/lower/run_lower.py
 ```
 
-실제 Full-Auto Runtime Entry는 다음 파일입니다.
+실제 완전 자동 Runtime 실행 파일은 다음과 같습니다.
 
 ```text
 SW/Jetson/preprocessing/lower/dual/undistort/
 └── bottom_vla-38_submission_full_auto.py
 ```
 
-전체 Runtime Entry 구조는 다음과 같습니다.
+전체 Runtime 연결 구조는 다음과 같습니다.
 
 ```text
 run_lower.py
@@ -70,15 +72,15 @@ bottom_vla-23_submission_runtime.py
 main-33_submission_runtime.py
 ```
 
-`run_lower.py`는 현재 GitHub Repository의 위치를 기준으로 필요한 Source, Model, Camera Calibration 및 Robot Calibration 파일의 경로를 계산하여 Runtime에 전달합니다.
+`run_lower.py`는 현재 GitHub 저장소의 위치를 기준으로 필요한 Runtime 소스, AI 모델, 카메라 보정 파일 및 로봇 보정 파일의 경로를 계산하여 하위 Runtime에 전달합니다.
 
-이를 통해 개발 과정에서 사용했던 `/workspace/project_train/...` 형태의 절대경로에 직접 의존하지 않고 GitHub Repository 내부의 제출 Artifact를 사용할 수 있도록 구성했습니다.
+이를 통해 개발 과정에서 사용했던 `/workspace/project_train/...` 형태의 절대경로에 직접 의존하지 않고, GitHub 저장소 내부의 제출 파일을 이용하여 실행할 수 있도록 구성했습니다.
 
 ---
 
 ## 3. 하의 Runtime 디렉터리 구조
 
-현재 Full-Auto Lower Runtime의 주요 구조는 다음과 같습니다.
+현재 완전 자동 하의 Runtime의 주요 구조는 다음과 같습니다.
 
 ```text
 lower/
@@ -109,14 +111,14 @@ lower/
         └── elp_ov2710_folding_board_homography_cache.json
 ```
 
-하의 Pose Model은 다음 경로를 사용합니다.
+하의 Pose 모델은 다음 경로를 사용합니다.
 
 ```text
 SW/Jetson/models/pose/lower/
 └── bottom_pose8_yolo26m_robot_beige_retrain_all_v2.engine
 ```
 
-상의와 하의에서 공통으로 사용하는 Garment Segmentation Model은 다음 경로를 사용합니다.
+상의와 하의에서 공통으로 사용하는 의류 영역 분할 모델은 다음 경로를 사용합니다.
 
 ```text
 SW/Jetson/models/segmentation/
@@ -125,23 +127,23 @@ SW/Jetson/models/segmentation/
 
 ---
 
-## 4. Full-Auto Controller
+## 4. 완전 자동 Runtime 제어부
 
 ### bottom_vla-38_submission_full_auto.py
 
-V38은 현재 제출용 하의 Pipeline의 최상위 Full-Auto Controller입니다.
+V38은 현재 제출용 하의 Runtime의 최상위 완전 자동 제어 코드입니다.
 
 주요 역할은 다음과 같습니다.
 
-* Full-Auto Cycle 시작 및 종료 관리
-* Fresh Observation 획득
-* 현재 Garment State 재판단
-* Semantic Action 자동 선택
-* Frozen Manipulation Plan 실행 관리
-* Action 완료 후 다음 Observation 요청
-* FINISH 상태 관리
-* Source Integrity 유지
-* Runtime Safety Gate 유지
+* 완전 자동 작업 시작 및 종료 관리
+* 새로운 카메라 영상 획득
+* 현재 의류 상태 재판단
+* 다음 동작 자동 선택
+* 고정 동작 계획(Frozen Plan) 생성 및 실행 관리
+* 동작 완료 후 다음 영상 재관찰
+* `FINISH` 상태 관리
+* Runtime 소스 무결성 확인
+* 실제 실행 전 안전 조건 확인
 
 개념적인 실행 흐름은 다음과 같습니다.
 
@@ -150,53 +152,55 @@ BASKET_GRASP
     ↓
 POSITION_ADJUST
     ↓
-Fresh Observation
+새 영상 획득
     ↓
-AUTO-JUDGE
+자동 상태 판단
     ↓
-필요한 Manipulation Action 실행
+필요한 조작 동작 실행
     ↓
-Fresh Observation
+새 영상 획득
     ↓
-AUTO-JUDGE
+자동 상태 판단
     ↓
 ...
     ↓
 FINISH
 ```
 
-초기 Basket에서 의류를 가져온 이후에는 하의의 상태를 반복적으로 관찰하면서 필요한 Manipulation을 자동으로 결정합니다.
+초기 `BASKET_GRASP`로 바구니에서 의류를 가져온 뒤에는 `POSITION_ADJUST`를 한 번 수행합니다.
+
+이후부터는 카메라로 하의 상태를 반복적으로 관찰하면서 현재 상태에 필요한 동작을 자동으로 선택합니다.
 
 ---
 
-## 5. Submission Runtime Base
+## 5. 제출용 Runtime 기반 코드
 
 ### bottom_vla-23_submission_runtime.py
 
-V38이 사용하는 Submission Runtime Base입니다.
+V38이 사용하는 제출용 Runtime 기반 코드입니다.
 
 주요 역할은 다음과 같습니다.
 
-* Main Runtime Source Resolution
-* Action Source Resolution
-* Basket Calibration Resolution
-* Semantic Action Mapping
-* Frozen Plan 관리
-* 개별 Action Runtime 연결
-* Action 실행 결과 처리
-* Auto Prepare 및 Auto Dispatch 구조 제공
+* Main Runtime 소스 탐색
+* 각 동작 소스 탐색
+* 바구니 보정 파일 탐색
+* 동작 종류와 실제 조작 Runtime 연결
+* 고정 동작 계획 관리
+* 각 동작 Runtime 연결
+* 동작 실행 결과 처리
+* 자동 동작 준비 및 실행 구조 제공
 
-현재 주요 Semantic Action Mapping은 다음과 같습니다.
+현재 주요 동작 연결 관계는 다음과 같습니다.
 
-| Semantic Action      | Runtime              |
-| -------------------- | -------------------- |
-| `BASKET_GRASP`       | Basket Grasp Runtime |
-| `POSITION_ADJUST`    | `58-3.py`            |
-| `OUTER_PULL`         | `54-3.py`            |
-| `PRESS_SWEEP`        | `55-5.py`            |
-| `WAIST_PULL_LAYDOWN` | `60-15.py`           |
-| `ALIGN`              | `align-11.py`        |
-| `FINISH`             | Finish State         |
+| 동작 종류 | Runtime |
+| --- | --- |
+| `BASKET_GRASP` | 바구니 파지 Runtime |
+| `POSITION_ADJUST` | `58-3.py` |
+| `OUTER_PULL` | `54-3.py` |
+| `PRESS_SWEEP` | `55-5.py` |
+| `WAIST_PULL_LAYDOWN` | `60-15.py` |
+| `ALIGN` | `align-11.py` |
+| `FINISH` | 작업 종료 상태 |
 
 ---
 
@@ -204,24 +208,24 @@ V38이 사용하는 Submission Runtime Base입니다.
 
 ### main-33_submission_runtime.py
 
-하의 Full-Auto 시스템의 Main Runtime입니다.
+하의 완전 자동 시스템의 공통 Runtime 기능을 담당합니다.
 
 주요 역할은 다음과 같습니다.
 
-* Camera 초기화
-* Camera Control 적용
-* Raw Frame 관리
-* Corrected Frame 관리
-* TensorRT Segmentation Model Loading
-* TensorRT Bottom Pose Model Loading
-* Camera Calibration Loading
-* Homography Loading
-* Robot / Folding Board Configuration Loading
-* Dynamic Action Source Loading
-* Source SHA Integrity 관리
-* Dual RoArm Runtime 관리
+* 카메라 초기화
+* 카메라 설정 적용
+* 원본 영상 관리
+* 왜곡 보정 영상 관리
+* TensorRT 의류 영역 분할 모델 불러오기
+* TensorRT 하의 Pose 모델 불러오기
+* 카메라 보정값 불러오기
+* Homography 불러오기
+* 로봇 및 폴딩보드 설정 불러오기
+* 각 동작 Runtime 소스 동적 연결
+* 소스 SHA-256 무결성 확인
+* 두 대의 RoArm M2-S Runtime 관리
 
-V38 / V23 Runtime에서는 다음 Action Source를 사용합니다.
+V38 / V23 Runtime에서는 다음 동작 소스를 사용합니다.
 
 ```text
 D50 → 50-1.py
@@ -232,65 +236,75 @@ D56 Slot → 60-15.py
 ALIGN → align-11.py
 ```
 
-특히 `60-15.py`는 Main Runtime의 D56 Source Slot에 연결되어 `WAIST_PULL_LAYDOWN` 계열 Manipulation을 담당합니다.
+특히 `60-15.py`는 Main Runtime의 D56 연결 위치에 적용되어 `WAIST_PULL_LAYDOWN` 동작을 담당합니다.
 
 ---
 
-## 7. 주요 Action Module
+## 7. 주요 동작 모듈
 
 ### 50-1.py
 
-Basket 관련 Robot Runtime Source입니다.
+`BASKET_GRASP` 동작의 기준 소스입니다.
 
-Main Runtime 초기화 과정에서 Source Dependency 및 Integrity 검사 대상으로 사용됩니다.
+바구니에서 의류를 가져오는 동작에 필요한 기존 로봇 제어 구조와 보정 정보를 제공합니다.
+
+현재 제출용 완전 자동 Runtime에서는 바구니 파지 동작이 제출용 Runtime 구조에 통합되어 있으며, 본 파일은 소스 의존성 및 무결성 검사 대상으로 함께 유지됩니다.
 
 ---
 
 ### 54-3.py
 
-`OUTER_PULL` Manipulation Runtime입니다.
+`OUTER_PULL` 동작 모듈입니다.
 
-Garment Mask, Bottom Pose 및 Corrected Camera Geometry를 기반으로 하의 외곽을 조정하기 위한 Manipulation Plan을 생성하고 실행합니다.
+의류 영역과 하의 특징점을 이용하여 의류 외곽의 파지 위치를 계산합니다.
+
+계산된 위치를 두 로봇팔이 파지한 뒤 바깥 방향으로 당겨 하의를 펼치는 동작을 계획하고 실행합니다.
 
 ---
 
 ### 55-5.py
 
-`PRESS_SWEEP` Manipulation Runtime입니다.
+`PRESS_SWEEP` 동작 모듈입니다.
 
-Wrinkle 및 Garment Geometry를 이용하여 하의 영역을 누르고 펼치는 동작을 계획합니다.
+주름 정보와 의류 형태를 이용하여 주름 또는 접힘 영역을 찾습니다.
+
+검출된 영역을 로봇팔로 누른 상태에서 바깥 방향으로 쓸어 주름이나 접힘을 완화하는 동작을 계획하고 실행합니다.
 
 ---
 
 ### 58-3.py
 
-`POSITION_ADJUST` Manipulation Runtime입니다.
+`POSITION_ADJUST` 동작 모듈입니다.
 
-하의의 현재 위치와 Folding Board Workspace를 분석하여 다음 조작을 수행하기 좋은 위치로 의류를 재배치합니다.
+하의의 현재 위치와 폴딩보드 작업영역을 분석하여 이후 조작을 수행하기 좋은 위치로 의류를 재배치합니다.
 
-V38 Full-Auto Cycle에서는 초기 Basket Grasp 이후 Position Adjust를 수행하고 이후 Fresh Observation 기반 자동 판단 단계로 진입합니다.
+완전 자동 Runtime에서는 `BASKET_GRASP` 이후 `POSITION_ADJUST`를 먼저 수행한 뒤, 새로 촬영한 영상을 이용한 자동 상태 판단 단계로 진입합니다.
 
 ---
 
 ### 60-15.py
 
-`WAIST_PULL_LAYDOWN` Manipulation Runtime입니다.
+`WAIST_PULL_LAYDOWN` 동작 모듈입니다.
 
-Waistband와 Bottom Pose / Geometry 정보를 이용하여 Waist 영역을 파지하고 이동 및 Laydown하기 위한 동작을 계획합니다.
+하의 Pose를 이용하여 허리 영역과 두 로봇팔의 파지 위치를 계산합니다.
+
+두 로봇팔로 허리 부분을 파지하여 의류를 펼친 뒤 다시 폴딩보드 위에 내려놓는 동작을 계획하고 실행합니다.
 
 ---
 
 ### align-11.py
 
-`ALIGN` Manipulation Runtime입니다.
+`ALIGN` 동작 모듈입니다.
 
-Bottom Pose와 Garment Geometry를 기반으로 하의의 위치와 방향을 정렬합니다.
+하의 Pose와 의류 형태를 이용하여 바지 중심축과 기준선 사이의 위치 및 방향 오차를 계산합니다.
+
+계산된 오차를 기준으로 의류를 이동하거나 회전시켜 폴딩보드의 목표 위치에 맞게 정렬합니다.
 
 ---
 
-## 8. Full-Auto Perception Module
+## 8. 하의 인식 모듈
 
-현재 Full-Auto Runtime에서는 다음 세 Perception Module을 Action Source와 동일한 `dual/undistort/` 디렉터리에 유지합니다.
+현재 완전 자동 Runtime에서는 다음 세 개의 하의 인식 모듈을 사용합니다.
 
 ```text
 step_e49_bottom_perception.py
@@ -298,7 +312,9 @@ step_e62_bottom_perception.py
 step_d25_v2.py
 ```
 
-이 배치는 다음 Action Module의 검증된 Runtime Import 구조를 그대로 보존하기 위한 것입니다.
+이 파일들은 기존에 실제 로봇에서 검증한 동작 Runtime의 연결 구조를 유지하기 위해 함께 사용됩니다.
+
+주요 연결 대상은 다음과 같습니다.
 
 ```text
 54-3.py
@@ -307,28 +323,20 @@ step_d25_v2.py
 align-11.py
 ```
 
-해당 Action Module에서는 Runtime 중 다음과 같은 일반 Python Import 구조를 사용합니다.
-
-```python
-import step_e49_bottom_perception
-import step_e62_bottom_perception
-import step_d25_v2
-```
-
-따라서 Full-Auto용 Perception Source를 Action Module과 동일한 디렉터리에 유지합니다.
+각 동작 모듈은 Runtime 실행 중 하의 영역, Pose, 주름 및 형태 분석 결과를 이용하여 실제 파지점과 이동 경로를 계산합니다.
 
 ---
 
 ## 9. step_e49_bottom_perception.py
 
-하의 Segmentation 및 기본 Perception / Geometry 분석을 담당합니다.
+하의 영역 분할과 기본적인 형태 분석을 담당하는 인식 모듈입니다.
 
 주요 기능은 다음과 같습니다.
 
-* Garment Segmentation
-* Garment Mask 선택
-* Bottom Observation 생성
-* Pose 및 Geometry 분석을 위한 기본 Observation 제공
+* 의류 영역 분할
+* 하의 Mask 선택
+* 하의 관찰 정보 생성
+* Pose 및 형태 분석을 위한 기본 정보 제공
 * Mask 및 하의 구조 분석
 
 대표 Runtime API는 다음과 같습니다.
@@ -339,23 +347,23 @@ infer_bottoms_mask()
 parse_class_names()
 ```
 
-본 Module은 Perception 계층이며 직접 Robot Serial Manipulation을 실행하는 Controller가 아닙니다.
+본 모듈은 카메라 영상에서 하의 상태를 분석하는 역할을 담당하며, 로봇에 직접 이동 명령을 보내는 제어 Runtime은 아닙니다.
 
 ---
 
 ## 10. step_e62_bottom_perception.py
 
-하의 Pose, Wrinkle, Geometry 및 Waist 관련 분석을 확장한 Perception Module입니다.
+하의 Pose, 주름, 형태 및 허리 영역 분석을 확장한 인식 모듈입니다.
 
 주요 기능은 다음과 같습니다.
 
-* Specular / Glare 억제
-* Wrinkle Heatmap 분석
-* Bottom Pose 추론
-* Pose-guided Segmentation Retry
-* Waist 관련 Semantic Evidence
-* Manipulation 판단용 Geometry Evidence
-* Finish 판단 보조
+* 빛 반사 및 눈부심 영향 완화
+* 주름 Heatmap 분석
+* 하의 Pose 추론
+* Pose 기반 의류 영역 재검출
+* 허리 영역 상태 분석
+* 동작 판단에 필요한 형태 정보 생성
+* 작업 완료 여부 판단 보조
 
 대표 Runtime API는 다음과 같습니다.
 
@@ -371,39 +379,39 @@ evaluate_waist_lift_semantics()
 
 ## 11. step_d25_v2.py
 
-Reference-free 방식의 하의 Geometry 및 Finish Evaluation에 사용되는 Perception Module입니다.
+기준 영상 없이 현재 하의의 형태와 작업 완료 가능성을 평가하는 인식 모듈입니다.
 
 주요 분석 요소는 다음과 같습니다.
 
-* Waist 구조
-* Crotch Concavity
-* Leg 구조
-* Hem 구조
-* Pose Landmark
-* Contour Geometry
-* Convexity 변화
-* Macro Fold
-* Manipulation 필요 여부
+* 허리 구조
+* 가랑이의 오목한 형태
+* 양쪽 다리 구조
+* 밑단 구조
+* Pose 특징점
+* 외곽선 형태
+* 볼록도 변화
+* 큰 접힘
+* 추가 조작 필요 여부
 
-Fine Wrinkle이나 의류 구조 자체에서 자연스럽게 발생하는 Pattern보다 실제로 추가 Manipulation이 필요한 큰 Fold 및 구조적 이상 상태를 중심으로 판단하도록 사용됩니다.
+미세한 주름이나 의류 자체에서 자연스럽게 발생하는 무늬보다 실제로 추가 조작이 필요한 큰 접힘과 구조적인 이상 상태를 중심으로 판단하도록 사용됩니다.
 
-본 Module 역시 Robot Serial Command를 직접 실행하는 Action Controller가 아니라 Perception / Geometry 계층에 해당합니다.
+본 모듈 역시 로봇에 직접 이동 명령을 보내는 동작 Runtime이 아니라 의류 상태를 분석하는 역할을 담당합니다.
 
 ---
 
-## 12. step_d23_v2 Compatibility Alias
+## 12. step_d23_v2 호환 구조
 
-`step_d25_v2.py`는 Runtime 중 `step_d23_v2` 이름을 참조할 수 있습니다.
+`step_d25_v2.py`는 Runtime 실행 과정에서 `step_d23_v2`라는 이름으로 참조될 수 있습니다.
 
 하지만 최종 제출 Runtime에서는 별도의 `step_d23_v2.py` 파일을 사용하지 않습니다.
 
-Action Module이 D25를 Load하기 전에 현재 Module을 다음과 같이 `step_d23_v2` 이름으로 등록합니다.
+동작 모듈이 D25를 불러오기 전에 현재 모듈을 다음과 같이 `step_d23_v2` 이름으로 등록합니다.
 
 ```python
 sys.modules.setdefault("step_d23_v2", sys.modules[__name__])
 ```
 
-해당 Compatibility 구조를 사용하는 주요 Module은 다음과 같습니다.
+해당 호환 구조를 사용하는 주요 모듈은 다음과 같습니다.
 
 ```text
 54-3.py
@@ -412,20 +420,20 @@ sys.modules.setdefault("step_d23_v2", sys.modules[__name__])
 align-11.py
 ```
 
-따라서 단순한 Import 이름만 보고 별도의 `step_d23_v2.py` 파일을 추가하지 않습니다.
+따라서 Import 이름만 보고 별도의 `step_d23_v2.py` 파일을 추가하지 않습니다.
 
 ---
 
-## 13. AI Model
+## 13. AI 모델
 
-### Garment Segmentation Model
+### 의류 영역 분할 모델
 
 ```text
 SW/Jetson/models/segmentation/
 └── kfashion_yolo26s_seg3_e100_best.engine
 ```
 
-TensorRT 기반 Garment Segmentation Model입니다.
+TensorRT 기반 의류 영역 분할 모델입니다.
 
 상의와 하의 Runtime에서 공통으로 사용합니다.
 
@@ -437,14 +445,16 @@ ec4b0bcfd6812a0723ad79d00fdc56faef3cd25d1476beee9de4fc9062071725
 
 ---
 
-### Bottom Pose Model
+### 하의 Pose 모델
 
 ```text
 SW/Jetson/models/pose/lower/
 └── bottom_pose8_yolo26m_robot_beige_retrain_all_v2.engine
 ```
 
-V38 Full-Auto Lower Runtime에서 사용하는 Bottom Pose TensorRT Engine입니다.
+V38 완전 자동 하의 Runtime에서 사용하는 Bottom Pose TensorRT Engine입니다.
+
+허리, 가랑이, 양쪽 밑단 등 하의 조작에 필요한 주요 특징점을 검출합니다.
 
 검증된 SHA-256:
 
@@ -452,28 +462,28 @@ V38 Full-Auto Lower Runtime에서 사용하는 Bottom Pose TensorRT Engine입니
 d40861c7db06b59bda50016fe2041b8d566d18060ff5f1ab1199d06a1ee7646f
 ```
 
-기존 Lower Runtime에서 사용하던 이전 Pose Engine 대신 현재 V38 Runtime에서는 위 모델을 사용합니다.
+기존 하의 Runtime에서 사용하던 이전 Pose Engine 대신 현재 V38 Runtime에서는 위 모델을 사용합니다.
 
 ---
 
-## 14. Camera
+## 14. 카메라
 
-사용 Camera:
+사용 카메라:
 
 ```text
 ELP OV2710
-Resolution: 1280 × 720
-Camera Device: /dev/video0
+해상도: 1280 × 720
+카메라 장치: /dev/video0
 ```
 
-Camera Control 파일:
+카메라 설정 파일:
 
 ```text
 SW/Jetson/preprocessing/lower/dual/
 └── elp_ov2710_camera_controls.json
 ```
 
-현재 제출 Runtime Camera Control 설정에는 다음 값이 포함됩니다.
+현재 제출 Runtime의 카메라 설정에는 다음 값이 포함됩니다.
 
 ```text
 auto_exposure = 1
@@ -484,14 +494,14 @@ white_balance_automatic = 0
 white_balance_temperature = 4600
 ```
 
-Camera Undistortion Helper:
+카메라 왜곡 보정 코드:
 
 ```text
 SW/Jetson/preprocessing/lower/dual/undistort/
 └── camera_undistort.py
 ```
 
-현재 `run_lower.py`에서 사용하는 Camera Intrinsic Calibration은 다음 Common Camera Resource입니다.
+현재 `run_lower.py`에서 사용하는 카메라 내부 보정값은 다음 공용 카메라 파일입니다.
 
 ```text
 SW/Jetson/common/camera/
@@ -506,9 +516,9 @@ SW/Jetson/common/camera/
 
 ---
 
-## 15. Lower 전용 Homography
+## 15. 하의 전용 Homography
 
-Full-Auto Lower Runtime은 다음 Lower 전용 Homography를 사용합니다.
+완전 자동 하의 Runtime은 다음 하의 전용 Homography 파일을 사용합니다.
 
 ```text
 SW/Jetson/preprocessing/lower/dual/undistort/
@@ -524,7 +534,7 @@ camera_geometry
 schema_version
 ```
 
-Lower Runtime은 Raw Frame과 Corrected Frame Geometry를 구분하여 사용하므로 `raw_H`와 `camera_geometry`가 포함된 Lower 전용 Homography가 필요합니다.
+하의 Runtime은 원본 영상과 왜곡 보정 영상의 좌표계를 구분하여 사용하므로 `raw_H`와 `camera_geometry`가 포함된 하의 전용 Homography가 필요합니다.
 
 검증된 SHA-256:
 
@@ -532,22 +542,22 @@ Lower Runtime은 Raw Frame과 Corrected Frame Geometry를 구분하여 사용하
 0a59a7a25f09af2edd235f5ee881ec48c9c52736200f7e91ed69ab1726b26a45
 ```
 
-Common Calibration Directory에도 비슷한 이름의 Folding Board Homography가 존재하지만 두 파일은 내용과 Runtime 용도가 다릅니다.
+공용 보정 디렉터리에도 비슷한 이름의 폴딩보드 Homography가 존재하지만 두 파일은 내용과 Runtime 용도가 다릅니다.
 
-따라서 다음 작업을 수행하면 안 됩니다.
+따라서 다음과 같은 변경을 수행하면 안 됩니다.
 
 ```text
-Lower Homography를 Common Homography 위에 덮어쓰기
-Common Homography를 Lower Homography 위에 덮어쓰기
-두 Homography를 하나로 통합
+하의 전용 Homography를 공용 Homography 위에 덮어쓰기
+공용 Homography를 하의 전용 Homography 위에 덮어쓰기
+두 Homography 파일을 하나로 통합
 JSON Key 구조를 임의 변경
 ```
 
 ---
 
-## 16. 공용 Robot / Folding Board Calibration
+## 16. 공용 로봇 / 폴딩보드 보정 파일
 
-현재 Lower Runtime에서 사용하는 공용 Calibration은 다음과 같습니다.
+현재 하의 Runtime에서 사용하는 공용 보정 파일은 다음과 같습니다.
 
 ```text
 SW/Jetson/common/calibration/
@@ -555,14 +565,14 @@ SW/Jetson/common/calibration/
 └── basket_arm2_5point_affine.json
 ```
 
-Board / Robot Configuration SHA-256:
+로봇 / 폴딩보드 설정 파일 SHA-256:
 
 ```text
 dual_roarm_folding_board_config.json
 807cc17db34cf48ba1e0eb7c770670a27e3370beee4c3d237659bfb6455c2373
 ```
 
-Basket Calibration SHA-256:
+바구니 보정 파일 SHA-256:
 
 ```text
 basket_arm2_5point_affine.json
@@ -571,32 +581,32 @@ basket_arm2_5point_affine.json
 
 ---
 
-## 17. V38 주요 실행 Key
+## 17. V38 주요 실행 키
 
-현재 V38 Full-Auto UI의 주요 Key는 다음과 같습니다.
+현재 V38 완전 자동 Runtime의 주요 키는 다음과 같습니다.
 
-| Key         | 기능                      |
-| ----------- | ----------------------- |
-| `E`         | Empty-board Baseline 획득 |
-| `L`         | Homography Lock         |
-| `X`         | Full-Auto Cycle 시작      |
-| `Q` / `ESC` | 정상 종료                   |
+| 키 | 기능 |
+| --- | --- |
+| `E` | 빈 폴딩보드 기준 영상 획득 |
+| `L` | Homography 고정 |
+| `X` | 완전 자동 작업 시작 |
+| `Q` / `ESC` | 프로그램 종료 / 긴급 중단 |
 
-기존 Human-in-the-loop Runtime에서 사용했던 숫자 Semantic Action Key와 `ENTER` 기반 Action 승인 절차는 현재 V38 제출 Runtime의 기본 운용 방식이 아닙니다.
+기존 사용자 개입 Runtime에서 사용했던 숫자 동작 선택 키와 `ENTER` 기반 동작 승인 과정은 현재 V38 제출 Runtime의 기본 운용 방식이 아닙니다.
 
-V38에서는 `X` 입력 이후 Full-Auto Cycle이 시작되며, 시스템이 Fresh Observation을 기반으로 다음 Semantic Action을 자동으로 결정합니다.
+V38에서는 `X` 입력 이후 완전 자동 작업이 시작되며, 시스템이 새로 획득한 영상을 바탕으로 다음 동작을 자동으로 결정합니다.
 
 ---
 
-## 18. Dependency 검사
+## 18. 의존성 검사
 
-Repository Root에서 다음 명령을 사용합니다.
+저장소 최상위 디렉터리에서 다음 명령을 사용합니다.
 
 ```bash
 cd /workspace/2026ESWContest_free_Otgaestra
 ```
 
-Robot 또는 Camera Runtime을 시작하지 않고 제출 Artifact의 존재 여부 및 SHA-256을 검사합니다.
+실제 로봇 또는 카메라 Runtime을 시작하지 않고 제출 파일의 존재 여부 및 SHA-256을 검사합니다.
 
 ```bash
 python3 SW/Jetson/preprocessing/lower/run_lower.py --paths-only
@@ -613,33 +623,33 @@ TOTAL=20
 검사 대상에는 다음 항목이 포함됩니다.
 
 ```text
-V38 Full-Auto Entry
-V23 Submission Runtime
-Main33 Submission Runtime
+V38 완전 자동 Runtime
+V23 제출용 Runtime 기반 코드
+Main33 Runtime
 50-1.py
 54-3.py
 55-5.py
 58-3.py
 60-15.py
 align-11.py
-Full-Auto E49
-Full-Auto E62
-Full-Auto D25
-Camera Undistort Helper
-Camera Calibration
-Lower Homography
-Camera Control
-Robot / Board Configuration
-Basket Calibration
+E49 하의 인식 모듈
+E62 하의 인식 모듈
+D25 하의 인식 모듈
+카메라 왜곡 보정 코드
+카메라 보정값
+하의 전용 Homography
+카메라 설정
+로봇 / 폴딩보드 설정
+바구니 보정값
 Segmentation TensorRT Engine
 Bottom Pose TensorRT Engine
 ```
 
 ---
 
-## 19. Python Source 검증
+## 19. Python 소스 검증
 
-현재 Full-Auto Runtime Stack에 대해 Python `py_compile` 검사를 수행했습니다.
+현재 완전 자동 Runtime 전체에 대해 Python `py_compile` 검사를 수행했습니다.
 
 검증 대상은 다음과 같습니다.
 
@@ -668,9 +678,9 @@ FAIL=0
 TOTAL=14
 ```
 
-Full-Auto E49 / E62의 일반 Python Import도 별도로 검증했습니다.
+E49 / E62 인식 모듈의 일반 Python Import도 별도로 검증했습니다.
 
-실제 Import 결과는 다음 `dual/undistort/` Source로 Resolve되었습니다.
+실제 Import 결과는 다음 `dual/undistort/` 소스로 연결되었습니다.
 
 ```text
 SW/Jetson/preprocessing/lower/dual/undistort/
@@ -678,7 +688,7 @@ SW/Jetson/preprocessing/lower/dual/undistort/
 └── step_e62_bottom_perception.py
 ```
 
-필수 Perception Runtime API 검사 결과:
+필수 Runtime API 검사 결과:
 
 ```text
 NORMAL IMPORT/API SUMMARY: FAIL=0
@@ -688,73 +698,73 @@ NORMAL IMPORT/API SUMMARY: FAIL=0
 
 ## 20. 실행 방법
 
-Repository Root:
+저장소 최상위 디렉터리:
 
 ```bash
 cd /workspace/2026ESWContest_free_Otgaestra
 ```
 
-### Dependency 검사
+### 의존성 검사
 
 ```bash
 python3 SW/Jetson/preprocessing/lower/run_lower.py --paths-only
 ```
 
-이 Mode에서는 실제 Runtime을 시작하지 않습니다.
+이 방식에서는 실제 Runtime을 시작하지 않습니다.
 
 ---
 
-### Dry-run
+### 모의 실행
 
 ```bash
 python3 SW/Jetson/preprocessing/lower/run_lower.py --dry-run
 ```
 
-Wrapper의 기본 Mode 역시 `dry-run`입니다.
+`run_lower.py`의 기본 실행 방식도 `dry-run`입니다.
 
 ---
 
-### Physical Runtime
+### 실제 로봇 Runtime
 
 ```bash
 python3 SW/Jetson/preprocessing/lower/run_lower.py --physical
 ```
 
-`--physical`은 실제 Dual RoArm M2-S Manipulation을 활성화합니다.
+`--physical` 옵션을 사용하면 실제 두 대의 RoArm M2-S를 이용한 의류 조작 Runtime이 활성화됩니다.
 
 ---
 
-## 21. Physical Runtime 주의
+## 21. 실제 로봇 Runtime 실행 시 주의사항
 
-`--physical` Mode를 실행하기 전 반드시 다음을 확인해야 합니다.
+`--physical` 옵션을 실행하기 전 반드시 다음 항목을 확인해야 합니다.
 
 ```text
-ARM1 전원 및 연결
-ARM2 전원 및 연결
+ARM1 전원 및 연결 상태
+ARM2 전원 및 연결 상태
 /dev/roarm_1
 /dev/roarm_2
-Camera /dev/video0
-Folding Board Workspace
-Robot 이동 경로 내 장애물
-사람이 Robot Workspace 내부에 없는지 여부
-Emergency Power-off 가능 여부
-Camera Calibration 상태
+카메라 /dev/video0
+폴딩보드 작업영역 상태
+로봇 이동 경로 내 장애물 여부
+사람이 로봇 작업영역 내부에 없는지 여부
+비상 전원 차단 가능 여부
+카메라 보정 상태
 Homography 상태
-Basket Calibration 상태
+바구니 보정 상태
 ```
 
-Robot Port:
+로봇 포트:
 
 ```text
 ARM1: /dev/roarm_1
 ARM2: /dev/roarm_2
 ```
 
-또한 `--hover` Mode는 완전한 No-motion Mode로 간주하지 않습니다.
+또한 `--hover` 방식은 완전히 로봇 명령이 발생하지 않는 Runtime으로 간주하지 않습니다.
 
-Underlying Lower Runtime 구조에서는 `hover` Mode 역시 Robot Command와 연결될 가능성이 있으므로, Powered Robot 환경에서 단순 Dependency 검증을 목적으로 사용하지 않습니다.
+하위 Runtime 구조에 따라 `hover` 방식에서도 로봇 명령과 연결될 가능성이 있으므로, 전원이 켜진 로봇 환경에서 단순한 의존성 검증을 위해 사용하지 않습니다.
 
-정적 Artifact 검사에는 반드시 다음 Mode를 권장합니다.
+정적 파일 검증에는 반드시 다음 방식을 권장합니다.
 
 ```bash
 --paths-only
@@ -762,9 +772,9 @@ Underlying Lower Runtime 구조에서는 `hover` Mode 역시 Robot Command와 �
 
 ---
 
-## 22. Generated Output
+## 22. 생성 파일
 
-Runtime 과정에서 생성되는 Artifact는 다음 위치를 사용합니다.
+Runtime 실행 과정에서 사용하는 임시 결과 및 디버그 출력은 가능한 경우 다음 디렉터리에서 관리합니다.
 
 ```text
 SW/Jetson/preprocessing/lower/outputs/
@@ -773,13 +783,13 @@ SW/Jetson/preprocessing/lower/outputs/
 예:
 
 ```text
-Empty-board Baseline Image
-Runtime Image
-Intermediate Output
-Debug Output
+빈 폴딩보드 기준 영상
+Runtime 실행 중 생성되는 영상
+중간 분석 결과
+디버그 출력
 ```
 
-Generated Artifact 및 Python Cache는 GitHub 제출 Source에서 제외합니다.
+GitHub 제출본에서는 Runtime 실행 과정에서 생성되는 임시 이미지 및 Python 캐시를 제외합니다.
 
 ```text
 outputs/
@@ -789,25 +799,27 @@ __pycache__/
 
 ---
 
-## 23. Source Integrity 주의사항
+## 23. Runtime 소스 무결성 주의사항
 
-하의 Runtime은 여러 Source를 Runtime에서 동적으로 연결합니다.
+하의 Runtime은 여러 소스 파일을 실행 중 동적으로 연결합니다.
 
 따라서 다음 사항을 유지해야 합니다.
 
 * 검증된 Python Runtime 파일명을 임의로 변경하지 않습니다.
-* Runtime Source Directory 구조를 임의 변경하지 않습니다.
-* 전체 Source를 자동 Formatter로 일괄 수정하지 않습니다.
-* Dynamic Source Loading 구조를 임의로 일반 Import 구조로 변경하지 않습니다.
-* Lower 전용 Homography와 Common Homography를 통합하지 않습니다.
-* 별도의 `step_d23_v2.py`를 임의로 추가하지 않습니다.
-* Full-Auto E49 / E62 / D25를 `dual/undistort/`에 유지합니다.
-* TensorRT Engine 파일을 다른 Pose Model과 임의 교체하지 않습니다.
-* 검증 없이 Action Source 파일을 새로운 이름으로 변경하지 않습니다.
+* Runtime 소스 디렉터리 구조를 임의로 변경하지 않습니다.
+* 전체 소스 파일을 자동 정리 도구로 일괄 수정하지 않습니다.
+* 동적 소스 연결 구조를 임의로 일반적인 Import 구조로 변경하지 않습니다.
+* 하의 전용 Homography와 공용 Homography를 통합하지 않습니다.
+* 별도의 `step_d23_v2.py` 파일을 임의로 추가하지 않습니다.
+* E49 / E62 / D25 인식 모듈을 지정된 위치에 유지합니다.
+* TensorRT Engine 파일을 다른 Pose 모델과 임의 교체하지 않습니다.
+* 검증 없이 동작 Runtime 소스 파일의 이름을 변경하지 않습니다.
 
-Main Runtime은 일부 Source에 대해 실행 Session 동안 Source Integrity를 검사하며, Source가 변경되었다고 판단되면 안전을 위해 실행을 차단할 수 있습니다.
+Main Runtime은 일부 소스 파일에 대해 Runtime 실행 중 소스 무결성을 검사합니다.
 
-GitHub 제출본에서는 단순한 코드 중복 최소화보다 **실제 Robot Runtime의 재현성 및 검증된 Dependency 구조 보존을 우선**합니다.
+소스가 검증된 상태와 다르다고 판단되면 안전을 위해 로봇 동작을 차단할 수 있습니다.
+
+GitHub 제출본에서는 단순히 코드 중복을 줄이는 것보다 **실제 로봇 Runtime의 재현성과 검증된 의존성 구조를 유지하는 것을 우선합니다.**
 
 ---
 
@@ -833,146 +845,140 @@ Docker 29.7.2
 
 ## 25. 현재 V38 제출본 검증 상태
 
-현재 V38 Full-Auto 로컬 제출본에서 완료한 검증은 다음과 같습니다.
+현재 V38 완전 자동 로컬 제출본에서 완료한 검증은 다음과 같습니다.
 
 ```text
-V38 Dependency SHA / Path Check
+V38 의존성 SHA / 경로 검사
 PASS=20 FAIL=0
 
-Lower Homography Semantic Check
+하의 전용 Homography 구조 검사
 PASS
 
 Python py_compile
 PASS=14 FAIL=0
 
-Full-Auto E49 Normal Import
+E49 일반 Import
 PASS
 
-Full-Auto E62 Normal Import
+E62 일반 Import
 PASS
 
-Required Perception API Check
+필수 Runtime API 검사
 FAIL=0
 ```
 
-구버전 Human-in-the-loop Lower Runtime에서 수행했던 Fresh Clone / Clean Docker 결과는 현재 V38 Full-Auto Runtime의 검증 결과로 간주하지 않습니다.
+이전 사용자 개입 방식의 하의 Runtime에서 수행했던 새 저장소 복제 및 초기 실행 환경 검증 결과는 현재 V38 완전 자동 Runtime의 검증 결과로 간주하지 않습니다.
 
-V38 Repository-only Fresh Clone 및 Clean Docker 재현성 검증은 최종 GitHub 제출 파일을 기준으로 별도로 수행합니다.
+V38 저장소 기준 재현성 검증은 최종 GitHub 제출 파일을 기준으로 별도로 수행합니다.
 
 ---
 
 ## 26. 이전 Runtime과의 차이
 
-이전 Lower Runtime은 사용자가 현재 하의 상태를 보고 다음 Semantic Action을 직접 선택하는 Human-in-the-loop 구조였습니다.
+이전 하의 Runtime은 사용자가 현재 하의 상태를 보고 다음 동작을 직접 선택하는 사용자 개입 방식이었습니다.
 
-이전 개념:
-
-```text
-Perception
-    ↓
-사용자 Semantic Action 선택
-    ↓
-Planning
-    ↓
-사용자 승인
-    ↓
-Execution
-```
-
-현재 V38 Full-Auto Runtime은 Semantic Action Decision을 자동화했습니다.
-
-현재 구조:
+기존 방식:
 
 ```text
-Perception
+의류 상태 인식
     ↓
-Garment State 판단
+사용자가 다음 동작 선택
     ↓
-Semantic Action 자동 결정
+동작 계획 생성
     ↓
-Manipulation Planning
+사용자 실행 승인
     ↓
-Robot Execution
-    ↓
-Fresh Observation
-    ↓
-다음 Semantic Action 자동 결정
+로봇 동작 실행
 ```
 
-따라서 사용자가 Manipulation 단계마다 다음 Action을 직접 선택하지 않아도 Runtime이 현재 의류 상태를 분석하여 다음 동작을 결정할 수 있도록 확장되었습니다.
+현재 V38 완전 자동 Runtime에서는 다음 동작을 선택하는 과정까지 자동화했습니다.
+
+현재 방식:
+
+```text
+의류 상태 인식
+    ↓
+현재 상태 판단
+    ↓
+다음 동작 자동 결정
+    ↓
+동작 계획 생성
+    ↓
+로봇 동작 실행
+    ↓
+새 영상 재관찰
+    ↓
+다음 동작 자동 결정
+```
+
+따라서 사용자가 각 조작 단계마다 다음 동작을 직접 선택하지 않아도 Runtime이 현재 의류 상태를 분석하여 필요한 동작을 스스로 결정할 수 있습니다.
 
 ---
 
-## 27. 최종 목표 및 현재 구현 범위
+## 27. 최종 구현 범위 및 요약
 
-현재 V38 Runtime은 다음 Closed-loop 구조를 구현합니다.
+현재 V38 하의 Runtime은 다음과 같은 폐루프(Closed-loop) 구조를 구현합니다.
 
 ```text
-Camera Observation
+카메라 영상 획득
     ↓
-Perception
+의류 상태 인식
     ↓
-Garment State Representation
+현재 하의 상태 판단
     ↓
-Semantic Action Decision
+다음 동작 자동 결정
     ↓
-Manipulation Planning
+동작 계획 생성
     ↓
-Dual RoArm Execution
+두 로봇팔을 이용한 조작
     ↓
-Fresh Observation
+새 영상 재관찰
     ↓
-State Re-evaluation
+상태 재평가
     ↓
-다음 Action
+다음 동작 결정
     ↓
 FINISH
 ```
 
-각 Action의 세부 Manipulation Planning은 기존에 실제 Robot에서 검증한 Action Runtime을 그대로 활용하면서, 상위 Semantic Action Decision을 Full-Auto Controller에서 수행합니다.
+각 동작의 세부 조작 계획은 기존에 실제 로봇에서 검증한 동작 Runtime을 그대로 활용하면서, 상위 단계에서 현재 의류 상태를 분석하고 다음 동작을 자동으로 선택하도록 구성했습니다.
 
-이를 통해 기존 Action Module의 물리 조작 로직을 보존하면서도 하의 전체 작업 흐름을 Closed-loop 방식으로 자동화했습니다.
+현재 하의 완전 자동 Runtime은 다음 기술을 결합합니다.
 
----
+* TensorRT 기반 의류 영역 분할
+* Bottom Pose 추론
+* Mask 및 외곽선 형태 분석
+* 주름 및 접힘 분석
+* 기준 영상 없이 수행하는 작업 완료 여부 판단
+* 카메라 왜곡 보정
+* Homography 기반 좌표 변환
+* 폴딩보드 보정
+* 바구니 위치 보정
+* 두 대의 RoArm M2-S 제어
+* 고정 동작 계획(Frozen Plan)
+* 다음 동작 자동 결정
+* 동작 후 새 영상 재관찰
+* 반복적인 상태 재평가
+* 자동 `FINISH` 판단
 
-## 28. 요약
-
-현재 Lower Full-Auto Pipeline은 다음 기술을 결합합니다.
-
-* TensorRT 기반 Garment Segmentation
-* Bottom Pose Estimation
-* Mask / Contour Geometry 분석
-* Wrinkle / Fold 분석
-* Reference-free Finish Evaluation
-* Camera Undistortion
-* Homography 기반 Coordinate Transformation
-* Folding Board Calibration
-* Basket Calibration
-* Dual RoArm M2-S Manipulation
-* Frozen Manipulation Plan
-* Semantic Action Auto Decision
-* Fresh State Re-observation
-* Closed-loop Manipulation
-* Automatic FINISH Decision
-
-최종 구조는 다음과 같습니다.
+최종 Runtime 실행 흐름은 다음과 같습니다.
 
 ```text
-Perception
+의류 상태 인식
     ↓
-Garment State 판단
+현재 상태 판단
     ↓
-Semantic Action 자동 결정
+다음 동작 자동 결정
     ↓
-Manipulation Planning
+동작 계획 생성
     ↓
-Robot Execution
+로봇 동작 실행
     ↓
-Fresh Observation
+새 영상 재관찰
     ↓
-다음 Action 자동 결정
+다음 동작 자동 결정
     ↓
 FINISH
 ```
 
-즉 현재 V38 제출 Runtime은 기존의 수동 Semantic Action 선택 구조에서 확장되어, **하의 상태 판단부터 다음 조작 선택, Robot Manipulation, 재관찰 및 종료조건 판단까지 반복적으로 수행하는 Full-Auto Closed-loop Lower Manipulation Pipeline**으로 구성되어 있습니다.
+즉 현재 V38 제출 Runtime은 기존의 수동 동작 선택 방식에서 확장되어, **하의 상태 인식부터 다음 조작 선택, 두 로봇팔을 이용한 실제 의류 조작, 재관찰 및 종료 조건 판단까지 반복적으로 수행하는 완전 자동 하의 정리 Runtime**으로 구성되어 있습니다.
