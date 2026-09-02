@@ -168,7 +168,7 @@ Dependency 확인:
 
 # 4. 하의 현재 Runtime
 
-하의는 현재 **VLA(Vision-Language-Action) 기반 자동 Action Policy 개발을 위한 Human-in-the-loop Data Collection 단계**입니다.
+하의는 현재 **VLA(Vision-Language-Action) 기반 자동 Action Policy 개발을 위한 데이터 수집 단계**입니다.
 
 현재 하의 Runtime에서는 Camera와 AI Model이 의류를 인식하고 Manipulation Plan을 생성하지만, 다음에 수행할 상위 Semantic Action은 사용자가 Key를 통해 선택합니다.
 
@@ -189,7 +189,7 @@ Dependency 확인:
             ↓
     Segmentation / Bottom Pose
             ↓
-    Garment State Analysis
+    의류 상태 분석
             ↓
     사용자 Semantic Action 선택
             ↓
@@ -199,7 +199,7 @@ Dependency 확인:
             ↓
     ENTER 승인
             ↓
-    Robot Execution
+    Robotic Arm Execution
             ↓
     Result Review
             ↓
@@ -250,13 +250,13 @@ Dependency 검사:
 
 따라서 현재 Lower Main Runtime의 Source, Model 및 Calibration Dependency는 기존 개발 Directory가 아닌 GitHub Repository 내부 Artifact를 기준으로 구성되어 있음을 확인했습니다.
 
-# 5. 하의 VLA Data Collection 목적
+# 5. 하의 VLA 데이터 수집 목적
 
 현재 하의에서 사용자가 Semantic Action을 직접 선택하는 이유는 최종 System을 수동으로 운용하기 위한 것이 아닙니다.
 
-현재 단계의 목적은 다음 관계를 Data로 축적하는 것입니다.
+현재 단계의 목적은 다음 관계를 데이터로 축적하는 것입니다.
 
-    Current Garment State
+    현재 의류 상태
             ↓
     Appropriate Semantic Action
             ↓
