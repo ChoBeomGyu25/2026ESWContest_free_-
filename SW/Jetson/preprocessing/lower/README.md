@@ -1,4 +1,4 @@
-# 하의 의류 인식 및 완전 자동 조작 Runtime
+# 하의 의류 Full-Auto Manipulation Runtime
 
 본 디렉터리는 **2026 임베디드 소프트웨어 경진대회 자유공모** 출품작  
 **옷개스트라 - 접신** 프로젝트의 Jetson 기반 **하의 인식·판단·조작 Runtime**을 포함합니다.
