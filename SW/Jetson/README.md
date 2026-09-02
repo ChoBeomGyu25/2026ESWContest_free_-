@@ -370,13 +370,13 @@ VLA 및 Garment-State Evaluation을 통해 다음 항목을 종합적으로 판�
         ↓
     Folding Board
 
-최종 목표는 의류의 초기 배치와 구김 상태가 매번 달라도 AI가 현재 상태를 반복 관찰하면서 적절한 Manipulation을 선택하고, **Folding Board가 동작해도 되는 종료 상태까지 스스로 판단하는 자동 의류 정리 Pipeline**입니다.
+최종 목표는 의류의 초기 배치와 구김 상태가 매번 달라도 AI가 현재 상태를 반복 관찰하면서 적절한 동작을 선택하고, **Folding Board가 동작해도 되는 종료 상태까지 스스로 판단하는 자동 의류 정리 파이프라인**입니다.
 
 ---
 
 # 11. Models
 
-TensorRT 기반 AI Model은 다음 Directory에서 관리합니다.
+TensorRT 기반 AI Model은 다음 디렉토리에서 관리합니다.
 
     SW/Jetson/models/
 
@@ -395,7 +395,7 @@ TensorRT 기반 AI Model은 다음 Directory에서 관리합니다.
 
 현재 Repository에는 실제 Runtime에서 사용하는 Segmentation 및 Pose TensorRT Engine을 포함합니다.
 
-향후 Upper Learned Manipulation Policy 및 Lower VLA Policy에서 사용할 학습 Model은 개발과 검증이 완료된 후 추가할 예정입니다.
+향후 학습된 상의 조작 정책 및 하의 VLA Policy에서 사용할 학습 모은 개발과 검증이 완료된 후 추가할 예정입니다.
 
 자세한 내용:
 
@@ -405,13 +405,13 @@ TensorRT 기반 AI Model은 다음 Directory에서 관리합니다.
 
 # 12. Common
 
-`common/`은 Vision Coordinate와 실제 Folding Board / Robot Workspace를 연결하기 위한 Camera 및 Calibration Resource를 관리합니다.
+`common/`은 Vision Coordinate와 실제 Folding Board / Robot Workspace를 연결하기 위한 카메라 및 보정 리소스를 포함합니다.
 
     SW/Jetson/common/
     ├── camera/
     └── calibration/
 
-주요 Resource:
+주요 리소스:
 
 - ELP OV2710 Camera Undistortion
 - Camera Intrinsic Calibration
@@ -423,9 +423,9 @@ TensorRT 기반 AI Model은 다음 Directory에서 관리합니다.
 
 ## Homography 주의사항
 
-Upper/Common Runtime과 Lower Runtime에는 동일한 이름의 Homography 파일이 존재하지만 두 파일은 서로 다른 Runtime Geometry 요구사항을 가집니다.
+상의/Common Runtime과 하의 Runtime에는 동일한 이름의 Homography 파일이 존재하지만 두 파일은 서로 다른 Runtime Geometry 요구사항을 가집니다.
 
-Common / Upper:
+Common / 상의:
 
     SW/Jetson/common/calibration/
     └── elp_ov2710_folding_board_homography_cache.json
@@ -447,11 +447,11 @@ Lower Version은 Raw / Corrected Frame Geometry를 구분하기 위해 `H`, `raw
 
 # 13. Policy
 
-`policy/`는 Garment State와 Manipulation Action 사이의 상위 Decision Layer를 설명합니다.
+`policy/`는 의류 상태와 조작 동작 사이의 상위 Decision Layer를 설명합니다.
 
 현재 상태:
 
-### Upper
+### 상의
 
 - 현재 Main Runtime의 Robot Manipulation Sequence는 구현 및 GitHub 제출 완료
 - 일부 판단 Logic은 기존 검증된 Runtime 내부에 포함
