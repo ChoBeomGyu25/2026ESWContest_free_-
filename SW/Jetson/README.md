@@ -62,15 +62,15 @@ Jetson Software의 주요 기능은 다음과 같습니다.
 1. ELP OV2710 Camera 영상 획득
 2. Camera Calibration 및 Lens Undistortion
 3. Garment Segmentation
-4. Upper / Lower Pose Estimation
-5. Garment Mask 및 Contour 분석
+4. 상의 / 하의 특징점 추론
+5. 의류 Mask 및 Contour 분석
 6. Keypoint / Landmark 분석
 7. 의류 방향 및 위치 분석
 8. Fold / Wrinkle 및 Garment Geometry 분석
 9. Camera Pixel Coordinate를 Folding Board / Robot Coordinate로 변환
 10. Robot Grasp Point 계산
 11. Manipulation Planning
-12. Dual RoArm M2-S Robot Control
+12. Dual Robotic Arms Control
 13. 조작 후 새로운 Garment State 관찰
 14. 향후 학습 기반 Action Decision
 15. 향후 Folding-ready 종료조건 판단
