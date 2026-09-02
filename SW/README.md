@@ -16,7 +16,7 @@
             ↓
     Action Decision
             ↓
-    Dual Robot Arm Manipulation
+    Dual Robotic Arms Manipulation
             ↓
     New Camera Observation
             ↓
@@ -65,7 +65,7 @@ NVIDIA Jetson Orin Nano에서 다음 기능을 수행합니다.
 - Folding Board 기준 좌표 변환
 - Robot Grasp Point 계산
 - Manipulation Planning
-- Dual RoArm M2-S 제어
+- Dual Robotic Arms 제어
 - 조작 후 Garment State 재관찰
 - 향후 학습 기반 Action Decision 및 종료조건 판단
 
@@ -95,7 +95,7 @@ NVIDIA Jetson Orin Nano에서 다음 기능을 수행합니다.
         ↓
     Grasp Point 결정
         ↓
-    Dual-Arm Grasp
+    Dual Robotic Arms Grasp
         ↓
     Aerial Lift / Alignment
         ↓
@@ -132,15 +132,15 @@ Dependency 확인:
 예시:
 
 - 주름 펼침
-- Fold 제거
-- Garment Position Correction
+- 의류의 접힘 제거
+- 의류 위치 수정
 - 의류 중심 정렬
 - 방향 보정
 - 추가 Pull / Reposition
-- 추가 Manipulation 필요 여부 판단
+- 추가 의류 조작 필요 여부 판단
 - 작업 종료조건 판단
 
-향후 Upper Pipeline은 다음과 같은 Closed-loop 구조로 확장할 예정입니다.
+향후 상의 Pipeline은 다음과 같은 Closed-loop 구조로 확장할 예정입니다.
 
     Current Upper Main Runtime
             ↓
