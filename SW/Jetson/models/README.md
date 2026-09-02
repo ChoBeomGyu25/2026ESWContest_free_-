@@ -139,9 +139,11 @@ Runtime 실행 파일:
             ↓
     Jetson Runtime
 
-현재 상의 Runtime에서는 커스텀 학습 모델의 판단을 우선 사용합니다.
+현재 상의 Runtime은 **학습 모델과 기존 규칙 기반 상태 판단을 함께 사용하는 Hybrid 구조**로 구성했습니다.
 
-모델의 신뢰도가 부족하거나 모델을 적용하기 위한 조건을 만족하지 못하는 경우에는 기존의 규칙 기반 상태 판단 로직을 사용합니다.
+모델의 신뢰도가 충분하고 실제 동작으로 연결할 수 있는 조건을 만족하면 학습 모델의 판단을 우선 사용합니다.
+
+반대로 모델의 신뢰도가 부족하거나 안전 및 실행 조건을 만족하지 못하는 경우에는 기존 규칙 기반 상태 판단 로직을 사용합니다.
 
 동작 결정 모델은 어떤 종류의 조작이 필요한지를 판단하는 역할을 담당하며, 실제 로봇의 파지점과 이동 경로를 직접 생성하지는 않습니다.
 
@@ -174,7 +176,7 @@ Runtime 실행 파일:
 - `PRESS_SWEEP` 동작 계획
 - `WAIST_PULL_LAYDOWN` 동작 계획
 - `ALIGN` 정렬 계획
-- `FINISH` 상태 평가
+- `FINISH` 상태 평가에 필요한 구조 정보 제공
 
 하의 Runtime에서는 Pose 결과를 Segmentation Mask, 주름 정보 및 의류 형태 분석 결과와 결합하여 현재 하의의 위치, 방향, 펼쳐진 정도와 추가 조작 필요 여부를 판단합니다.
 
@@ -243,9 +245,17 @@ Runtime 실행 파일:
 
 ### 하의 자동 조작 흐름
 
-하의의 경우 Segmentation과 Pose 결과에 의류 형태, 주름, 접힘 및 정렬 상태를 결합하여 다음 Action을 자동으로 결정합니다.
+하의 Runtime은 바구니에서 의류를 가져오는 `BASKET_GRASP`부터 시작하여, 의류의 초기 위치를 보정하는 `POSITION_ADJUST`를 1회 수행한 뒤 현재 상태를 자동으로 분석합니다.
 
-    하의 Segmentation + Pose
+    X 입력
+            ↓
+    BASKET_GRASP
+            ↓
+    POSITION_ADJUST
+            ↓
+    새 영상 획득
+            ↓
+    Segmentation + Pose 추론
             ↓
     형태 / 주름 / 접힘 / 정렬 상태 분석
             ↓
@@ -263,14 +273,22 @@ Runtime 실행 파일:
             ↓
     다음 Action 판단 / FINISH
 
-현재 하의 Runtime에서 자동으로 선택하는 주요 Action은 다음과 같습니다.
+현재 하의 Runtime에서 사용하는 주요 Action은 다음과 같습니다.
 
+- `BASKET_GRASP`
 - `POSITION_ADJUST`
 - `OUTER_PULL`
 - `PRESS_SWEEP`
 - `WAIST_PULL_LAYDOWN`
 - `ALIGN`
 - `FINISH`
+- `REJUDGE`
+
+`BASKET_GRASP`는 바구니에서 의류를 파지하여 폴딩보드 위로 가져오는 초기 동작이며, `POSITION_ADJUST`는 이후 자동 정리를 시작하기 전에 의류의 초기 위치를 보정하는 동작입니다.
+
+`REJUDGE`는 실제 로봇 조작을 수행하는 Action이 아니라, 새로운 카메라 영상을 획득하여 현재 의류 상태와 다음 Action을 다시 판단하는 제어 Action입니다.
+
+한 번의 카메라 관찰에서 파지점, 목표점 및 이동 경로가 계산되면 해당 결과를 **Frozen Plan**으로 고정합니다.
 
 각 로봇 동작이 끝난 뒤에는 새로운 카메라 영상을 획득하여 변화된 의류 상태를 다시 분석하고 다음 Action을 결정합니다.
 
@@ -299,6 +317,8 @@ Segmentation 모델:
 
 상의 Runtime은 Segmentation 및 Pose 결과를 이용하여 현재 의류 상태를 분석하고, 커스텀 학습 모델을 통해 다음 조작 동작을 판단합니다.
 
+모델의 판단 결과는 기존 규칙 기반 상태 판단 및 안전 검사 로직과 함께 사용됩니다.
+
 동작 결정 이후 실제 파지점과 이동 경로는 각 Action의 기존 조작 계획 및 안전 검사 로직을 이용하여 계산합니다.
 
 ---
@@ -319,22 +339,26 @@ Segmentation 모델:
 
 `run_lower.py`는 GitHub Repository 내부 경로를 기준으로 하의 Runtime에 필요한 모델과 카메라·로봇 보정 파일의 경로를 전달합니다.
 
-현재 하의 Runtime은 Segmentation 및 Pose 결과와 의류의 형태, 주름, 접힘 및 정렬 상태를 함께 분석하여 현재 상태에 필요한 다음 Action을 자동으로 결정합니다.
+현재 하의 Runtime은 Segmentation 및 Pose 결과와 의류의 형태, 주름, 접힘 및 정렬 상태를 함께 분석하여 현재 상태에 필요한 다음 Action을 결정합니다.
 
 주요 Action은 다음과 같습니다.
 
+- `BASKET_GRASP`
 - `POSITION_ADJUST`
 - `OUTER_PULL`
 - `PRESS_SWEEP`
 - `WAIST_PULL_LAYDOWN`
 - `ALIGN`
 - `FINISH`
+- `REJUDGE`
+
+`REJUDGE`는 로봇을 직접 움직이는 동작이 아니라, 새로운 카메라 영상을 획득하여 현재 의류 상태와 다음 Action을 다시 판단하기 위한 제어 Action입니다.
 
 한 번의 카메라 관찰에서 생성한 파지점, 목표점 및 이동 경로는 고정 동작 계획(Frozen Plan)으로 유지한 뒤 실제 로봇 동작에 사용합니다.
 
 각 동작이 끝난 뒤에는 새로운 카메라 영상을 획득하고 변화된 의류 상태를 다시 분석하여 다음 Action을 결정합니다.
 
-이를 통해 하의 Runtime은 **인식 → 상태 판단 → Action 결정 → 로봇 조작 → 재관찰 → 상태 재평가**가 반복되는 완전 자동 구조로 동작합니다.
+이를 통해 하의 Runtime은 **인식 → 상태 판단 → Action 결정 → 로봇 조작 → 재관찰 → 상태 재평가**가 반복되는 구조로 동작합니다.
 
 ---
 
