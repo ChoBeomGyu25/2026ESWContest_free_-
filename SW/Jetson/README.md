@@ -68,12 +68,12 @@ Jetson Software의 주요 기능은 다음과 같습니다.
 7. 의류 방향 및 위치 분석
 8. Fold / Wrinkle 및 Garment Geometry 분석
 9. Camera Pixel Coordinate를 Folding Board / Robot Coordinate로 변환
-10. Robot Grasp Point 계산
+10. Robot 파지점 계산
 11. Manipulation Planning
 12. Dual Robotic Arms Control
 13. 조작 후 새로운 Garment State 관찰
-14. 향후 학습 기반 Action Decision
-15. 향후 Folding-ready 종료조건 판단
+14. 학습 기반 옷 조작 동작 결정
+15. Folding-ready 종료조건 판단
 
 ---
 
@@ -87,11 +87,11 @@ Jetson Software의 주요 기능은 다음과 같습니다.
 
 상의와 하의는 구조와 조작 방법이 서로 다르기 때문에 각각 검증된 Runtime 구조를 유지합니다.
 
-단순한 Source 중복 제거보다 실제 Robot에서 검증된 Dependency와 Runtime 재현성을 우선합니다.
+단순한 Source 중복 제거보다 실제 Robot에서 검증된 의존성과 Runtime 재현성을 우선합니다.
 
 ---
 
-# 4. 현재 Upper Runtime
+# 4. 현재 상의 Runtime
 
 현재 상의 Main Runtime은 GitHub Repository에 포함되어 있습니다.
 
@@ -103,7 +103,7 @@ Repository-Relative Launcher:
 
     SW/Jetson/preprocessing/upper/run_upper.py
 
-현재 상의 Main Pipeline은 다음 과정까지 수행합니다.
+현재 상의 Main 파이프라인은 다음 과정까지 수행합니다.
 
     Basket Garment Grasp
             ↓
@@ -113,11 +113,11 @@ Repository-Relative Launcher:
             ↓
     Garment Reposition
             ↓
-    Segmentation + Upper Pose
+    YOLO Segmentation + YOLO 상의 Pose
             ↓
     Final Grasp Point Selection
             ↓
-    Dual-Arm Grasp
+    Dual Robotic Arms Grasp
             ↓
     Aerial Lift / Alignment
             ↓
@@ -125,7 +125,7 @@ Repository-Relative Launcher:
             ↓
     Standby Return
 
-Dependency 확인:
+의존성 확인:
 
     python3 SW/Jetson/preprocessing/upper/run_upper.py --paths-only
 
@@ -133,15 +133,13 @@ Dependency 확인:
 
     python3 SW/Jetson/preprocessing/upper/run_upper.py --physical-auto
 
-`--physical-auto`는 실제 Dual RoArm M2-S를 동작시키므로 Robot 및 Workspace Safety를 확인한 뒤 실행해야 합니다.
+`--physical-auto`는 실제 Dual Robotic Arms을 동작시키는 옵션입니다.
 
 ---
 
-# 5. Upper 향후 학습 기반 자율화
+# 5. 상의 코드 학습 기반 자율화
 
-현재 GitHub에 올라간 Upper Main Runtime은 상의의 초기 배치, 인식, Dual-Arm Grasp, 공중 정렬 및 Laydown까지 수행합니다.
-
-향후에는 이 Main Runtime **이후 단계에 학습 Model 기반의 Garment State Decision Module을 연결**할 예정입니다.
+현재 GitHub에 올라간 상의 Main Runtime은 상의의 초기 배치, 인식, Dual-Arm Robot Grasp, 공중 정렬 및 Laydown까지 수행하며, **학습 모델 기반의 의류 조작 동작 결정 모듈**할 예정입니다.
 
 이 후속 Module은 Laydown 후 새로운 Camera Frame을 관찰하여 다음과 같은 조작의 필요 여부를 스스로 판단하는 것을 목표로 합니다.
 
@@ -184,7 +182,7 @@ Dependency 확인:
 
 ---
 
-# 6. 현재 Lower Runtime
+# 6. 현재 하의 Runtime
 
 현재 하의 Runtime 역시 GitHub Repository에 포함되어 있습니다.
 
@@ -243,7 +241,7 @@ Camera와 AI Model이 현재 하의 상태를 인식하고 각 Action에 필요�
 
 ---
 
-# 7. Lower VLA Data Collection
+# 7. 하의 VLA Data Collection
 
 현재 하의에서 사용자가 Semantic Action을 직접 선택하는 가장 중요한 이유는 **VLA(Vision-Language-Action) 기반 자동 Action Policy를 학습하기 위한 Data를 수집하기 위해서입니다.**
 
@@ -276,7 +274,7 @@ Camera와 AI Model이 현재 하의 상태를 인식하고 각 Action에 필요�
 
 ---
 
-# 8. Lower 향후 VLA 기반 자동화
+# 8. 하의 향후 VLA 기반 자동화
 
 충분한 VLA Data를 수집하고 학습을 완료한 뒤에는 현재 사람이 수행하는 Semantic Action Selection을 VLA 기반 Model로 대체할 예정입니다.
 
@@ -310,7 +308,7 @@ Camera와 AI Model이 현재 하의 상태를 인식하고 각 Action에 필요�
 
 ---
 
-# 9. Lower 종료조건 자동 판단 목표
+# 9. 하의 종료조건 자동 판단 목표
 
 하의의 최종 목표는 단순한 Semantic Action 자동 선택에서 끝나지 않습니다.
 
@@ -348,9 +346,9 @@ VLA 및 Garment-State Evaluation을 통해 다음 항목을 종합적으로 판�
 
 ---
 
-# 10. Upper / Lower 최종 통합 방향
+# 10. 상의 / 하의 최종 통합 방향
 
-현재 Upper와 Lower의 구현 단계는 다르지만 최종적으로 같은 Closed-loop Manipulation Architecture를 지향합니다.
+현재 상의와 하의의 구현 단계는 다르지만 최종적으로 같은 Closed-loop Manipulation Architecture를 지향합니다.
 
     Garment Input
         ↓
