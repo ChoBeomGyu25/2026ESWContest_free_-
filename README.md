@@ -79,12 +79,6 @@
 
 ---
 
-## 📂 Repository Structure
-
-
-
----
-
 ## ⚙️ Environment
 
 | Category | Environment |
