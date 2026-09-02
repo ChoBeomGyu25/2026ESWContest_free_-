@@ -1,7 +1,11 @@
 # Garment Manipulation Policy
 
-이 디렉터리는 팀 **옷개스트라**의 자동 의류 정리 로봇 시스템 **「접신」**에서
-현재 관찰된 의류 상태를 바탕으로 **다음 Manipulation Action과 작업 종료 여부를 결정하는 Policy 계층**을 설명합니다.
+이 디렉터리는 팀 **옷개스트라**의 자동 의류 정리 로봇 시스템 **「접신」**에서 사용되는
+현재 Action Decision 구조와, 향후 의류 상태를 기반으로 다음 Manipulation Action 및 작업 종료 여부를
+자동 결정하기 위한 **Policy Architecture**를 설명합니다.
+
+현재 `SW/Jetson/policy/`는 Main Runtime의 필수 실행 Dependency가 아니며,
+독립된 Learned Policy Python Module은 아직 포함되어 있지 않습니다.
 
 비정형 의류는 강체 물체와 달리 Robot이 한 번 파지하거나 이동할 때마다 형태가 달라집니다.
 
@@ -27,7 +31,8 @@
 
 # 1. Policy 계층의 역할
 
-Policy는 Perception 결과와 현재 작업 상태를 입력으로 받아 다음 행동을 결정합니다.
+최종적으로 지향하는 Policy는 Perception 결과와 현재 작업 상태를 입력으로 받아
+다음 Semantic Action과 작업 종료 여부를 결정합니다.
 
 입력으로 활용할 수 있는 정보의 예시는 다음과 같습니다.
 
@@ -45,7 +50,7 @@ Policy는 Perception 결과와 현재 작업 상태를 입력으로 받아 다�
 - 이전 Action Result
 - 현재 작업 단계
 
-Policy가 결정할 수 있는 Action의 예시는 다음과 같습니다.
+향후 Policy가 선택할 수 있는 Semantic Action의 예시는 다음과 같습니다.
 
 - Basket Grasp
 - Pull
@@ -59,13 +64,16 @@ Policy가 결정할 수 있는 Action의 예시는 다음과 같습니다.
 - Re-observation
 - Rejudge
 - Finish
-- Folding-ready 판단
+
+작업 종료 여부는 Action과 별도의 Termination Output으로 판단하는 구조를 목표로 합니다.
+
+- `FOLDING_READY`
 
 ---
 
 # 2. 전체 시스템에서의 위치
 
-전체 Software Pipeline에서 Policy는 다음 위치에 있습니다.
+최종적으로 지향하는 Software Architecture에서 Policy는 다음 위치에 있습니다.
 
     Camera Input
         ↓
