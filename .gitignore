@@ -27,3 +27,29 @@ SW/Jetson/preprocessing/upper/basket_torque_descent_*.csv
 
 # Lower runtime generated artifacts
 SW/Jetson/preprocessing/lower/outputs/
+
+# Python tool/cache directories
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Editor temporary / metadata files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Upper post-laydown diagnostic artifacts
+SW/Jetson/preprocessing/upper/post_laydown_mask_debug/
+
+# Arduino build artifacts
+SW/Arduino/**/build/
+SW/Arduino/**/*.hex
+SW/Arduino/**/*.elf
+SW/Arduino/**/*.bin
