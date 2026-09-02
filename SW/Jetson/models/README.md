@@ -144,43 +144,46 @@ Dependency Path 확인:
 파일:
 
     SW/Jetson/models/pose/lower/
-    └── bottom_pose8_beige_finetune_v2_best.engine
+    └── bottom_pose8_yolo26m_robot_beige_retrain_all_v2.engine
 
-하의 의류의 주요 Landmark와 구조를 추론하기 위한 Pose Estimation TensorRT Model입니다.
+하의 의류의 주요 특징점을 추론하기 위한 TensorRT 기반 Pose Model입니다.
 
-하의 Pose 결과는 다음 분석에 사용됩니다.
+본 모델은 허리, 가랑이, 양쪽 밑단의 주요 위치를 검출하며, 검출된 Pose 결과는 하의의 형태와 방향을 분석하고 실제 로봇 동작을 계획하는 데 사용됩니다.
 
-- Waistband 구조 분석
-- Crotch 위치 및 Concavity 분석
-- Leg 구조 분석
-- Hem 영역 판단
+하의 Pose 결과는 다음 분석 및 동작 계획에 활용됩니다.
+
+- 허리선 구조 분석
+- 가랑이 위치 분석
+- 양쪽 다리 구조 분석
+- 밑단 영역 판단
 - 하의 방향 추정
-- Garment Axis 분석
-- Mask Geometry와의 결합
-- Grasp Candidate 생성
-- Alignment Planning
-- Waist Pull / Laydown Planning
-- Finish State 평가
+- 의류 중심축 분석
+- Segmentation Mask와의 결합
+- 접힘 및 좌우 비대칭 분석
+- 로봇 파지 후보 생성
+- `PRESS_SWEEP` 동작 계획
+- `WAIST_PULL_LAYDOWN` 동작 계획
+- `ALIGN` 정렬 계획
+- `FINISH` 상태 평가
 
-하의 Runtime에서는 Pose 결과를 Segmentation Mask 및 Geometry 분석 결과와 결합하여 하의의 현재 형상과 조작 상태를 판단합니다.
+하의 Runtime에서는 Pose 결과를 Segmentation Mask, 주름 정보 및 의류 형태 분석 결과와 결합하여 현재 하의의 위치, 방향, 펼쳐진 정도와 추가 조작 필요 여부를 판단합니다.
 
-주요 Perception Module:
+주요 인식 모듈:
 
-    SW/Jetson/preprocessing/lower/dual/
+    SW/Jetson/preprocessing/lower/dual/undistort/
     ├── step_e49_bottom_perception.py
     ├── step_e62_bottom_perception.py
     └── step_d25_v2.py
 
-Repository-Relative Runtime Entry:
+Runtime 실행 파일:
 
     SW/Jetson/preprocessing/lower/run_lower.py
 
-Dependency Path 확인:
+의존성 경로 확인:
 
     python3 SW/Jetson/preprocessing/lower/run_lower.py --paths-only
 
 ---
-
 ## 6. 모델 사용 흐름
 
 전체적인 의류 인식 및 판단 과정은 다음과 같습니다.
