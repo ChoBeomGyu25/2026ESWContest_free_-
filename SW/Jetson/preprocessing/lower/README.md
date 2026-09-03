@@ -719,7 +719,7 @@ python3 SW/Jetson/preprocessing/lower/run_lower.py --paths-only
 ```bash
 python3 SW/Jetson/preprocessing/lower/run_lower.py --dry-run
 ```
-
+실제 로봇 동작 없이 Runtime 초기화, TensorRT 모델 로딩 및 주요 실행 구성을 확인합니다.
 `run_lower.py`의 기본 실행 방식도 `dry-run`입니다.
 
 ---
